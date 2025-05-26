@@ -437,7 +437,13 @@ export default function CommunityPage() {
             </Card>
             
             {/* 광고 콘텐츠 */}
-            <SponsoredContent type="sidebar" />
+            <SponsoredContent 
+              type="sidebar" 
+              title="Korea Travel Guide" 
+              description="Essential tips for your journey in Korea" 
+              action="Learn More" 
+              href="/guide" 
+            />
             
             {/* 커뮤니티 가이드라인 */}
             <Card>
