@@ -76,7 +76,7 @@ const mockEvent = {
   ]
 };
 
-export default function EventDetailPage({ params }: { params: { id: string } }) {
+export default function EventDetailPage() {
   const router = useRouter();
   const [isAttending, setIsAttending] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
