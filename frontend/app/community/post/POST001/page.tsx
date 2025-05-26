@@ -91,10 +91,13 @@ interface PostCardProps {
 }
 
 interface SponsoredContentProps {
+  type: 'sidebar' | 'inline' | 'banner';
   title: string;
   description: string;
   action: string;
   href: string;
+  category?: string;
+  className?: string;
 }
 
 export default function PostDetailPage() {
@@ -569,6 +572,7 @@ export default function PostDetailPage() {
             </Card>
 
             <SponsoredContent
+              type="sidebar"
               title="Korean Language Course"
               description="Learn essential phrases for your trip"
               action="Learn More"
