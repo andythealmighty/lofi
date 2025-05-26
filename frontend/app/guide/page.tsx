@@ -67,7 +67,7 @@ export default function GuidePage() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
       {/* 메인 콘텐츠 */}
       <div className="container mx-auto px-4 py-8">
@@ -81,7 +81,7 @@ export default function GuidePage() {
               <TabsTrigger value="culture" className="flex-1 h-full">Culture</TabsTrigger>
               <TabsTrigger value="safety" className="flex-1 h-full">Safety & Health</TabsTrigger>
               <TabsTrigger value="shopping" className="flex-1 h-full">Shopping</TabsTrigger>
-            </TabsList>
+          </TabsList>
 
             {/* 필수 정보 탭 */}
             <TabsContent value="essentials" className="space-y-8">
@@ -103,7 +103,7 @@ export default function GuidePage() {
                           <p className="text-sm text-blue-700">
                             As of 2024, citizens from 112 countries can enter South Korea without a visa for tourism or short-term business for up to 30-90 days, depending on nationality.
                           </p>
-                        </div>
+                  </div>
                       </div>
                       
                       <Accordion type="single" collapsible className="w-full">
@@ -170,7 +170,7 @@ export default function GuidePage() {
                         Language & Communication
                       </CardTitle>
                       <CardDescription>Essential phrases and language tips</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="mb-4">
                         <p className="mb-2 text-gray-700">
@@ -208,41 +208,41 @@ export default function GuidePage() {
                         </div>
                       </div>
                       
-                      <div className="space-y-3">
+                  <div className="space-y-3">
                         <h4 className="font-medium">Communication Tips</h4>
                         <div className="flex gap-2 items-start">
                           <div className="bg-red-100 p-1 rounded-full mt-0.5">
                             <MapPin className="h-3 w-3 text-red-600" />
-                          </div>
+                    </div>
                           <p className="text-sm text-gray-700">
                             Download a translation app like Papago or Google Translate, which work well with Korean
                           </p>
-                        </div>
+                    </div>
                         <div className="flex gap-2 items-start">
                           <div className="bg-red-100 p-1 rounded-full mt-0.5">
                             <MapPin className="h-3 w-3 text-red-600" />
-                          </div>
+                    </div>
                           <p className="text-sm text-gray-700">
                             Take screenshots of addresses in Korean to show taxi drivers or locals when asking for directions
                           </p>
-                        </div>
+                    </div>
                         <div className="flex gap-2 items-start">
                           <div className="bg-red-100 p-1 rounded-full mt-0.5">
                             <MapPin className="h-3 w-3 text-red-600" />
-                          </div>
+                  </div>
                           <p className="text-sm text-gray-700">
                             Tourist information centers in major areas have English-speaking staff
                           </p>
                         </div>
                       </div>
-                    </CardContent>
+                </CardContent>
                     <CardFooter>
                       <Button variant="outline" className="w-full">
                         Download Phrasebook PDF
                       </Button>
                     </CardFooter>
-                  </Card>
-                  
+              </Card>
+
                   {/* 통화 및 결제 */}
                   <Card>
                     <CardHeader className="pb-2">
@@ -258,10 +258,10 @@ export default function GuidePage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <h5 className="text-sm font-medium">Bills</h5>
-                            <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                               <div className="w-10 h-5 bg-blue-100 rounded"></div>
                               <span>₩1,000 (approx. $0.75 USD)</span>
-                            </div>
+                  </div>
                             <div className="flex items-center gap-2">
                               <div className="w-10 h-5 bg-green-100 rounded"></div>
                               <span>₩5,000 (approx. $3.75 USD)</span>
@@ -287,28 +287,28 @@ export default function GuidePage() {
                       
                       <div>
                         <h4 className="font-medium mb-2">Payment Methods</h4>
-                        <div className="space-y-3">
+                  <div className="space-y-3">
                           <div className="flex items-start gap-3 p-3 border rounded-lg">
                             <div className="bg-blue-100 p-2 rounded-lg">
                               <CreditCard className="h-5 w-5 text-blue-600" />
-                            </div>
+                    </div>
                             <div>
                               <h5 className="font-medium">Credit Cards</h5>
                               <p className="text-sm text-gray-600">
                                 Widely accepted in cities and tourist areas. Visa and Mastercard are most common. American Express has limited acceptance.
                               </p>
-                            </div>
-                          </div>
+                    </div>
+                    </div>
                           <div className="flex items-start gap-3 p-3 border rounded-lg">
                             <div className="bg-green-100 p-2 rounded-lg">
                               <Smartphone className="h-5 w-5 text-green-600" />
-                            </div>
+                    </div>
                             <div>
                               <h5 className="font-medium">Mobile Payments</h5>
                               <p className="text-sm text-gray-600">
                                 Korean apps like Kakao Pay and Naver Pay are popular but require a Korean phone number. International travelers can use Apple Pay or Google Pay where supported.
                               </p>
-                            </div>
+                  </div>
                           </div>
                           <div className="flex items-start gap-3 p-3 border rounded-lg">
                             <div className="bg-yellow-100 p-2 rounded-lg">
@@ -335,9 +335,9 @@ export default function GuidePage() {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                </CardContent>
+              </Card>
+                  </div>
                 
                 <div className="space-y-6">
                   {/* 사이드바 위젯 */}
@@ -347,27 +347,27 @@ export default function GuidePage() {
                         <CalendarDays className="h-5 w-5 text-red-500" />
                         Best Time to Visit
                       </CardTitle>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center justify-between border-b pb-2">
                         <div>
                           <div className="font-medium">Spring (Apr-Jun)</div>
                           <div className="text-sm text-gray-500">Cherry blossoms, mild weather</div>
-                        </div>
+                    </div>
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Best</Badge>
-                      </div>
+                    </div>
                       <div className="flex items-center justify-between border-b pb-2">
                         <div>
                           <div className="font-medium">Summer (Jul-Aug)</div>
                           <div className="text-sm text-gray-500">Hot, humid, occasional rain</div>
-                        </div>
+                    </div>
                         <Badge variant="outline">Good</Badge>
-                      </div>
+                    </div>
                       <div className="flex items-center justify-between border-b pb-2">
                         <div>
                           <div className="font-medium">Fall (Sep-Nov)</div>
                           <div className="text-sm text-gray-500">Autumn colors, pleasant</div>
-                        </div>
+                  </div>
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Best</Badge>
                       </div>
                       <div className="flex items-center justify-between">
@@ -377,17 +377,17 @@ export default function GuidePage() {
                         </div>
                         <Badge variant="outline">Fair</Badge>
                       </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
+                </CardContent>
+              </Card>
+
+            <Card>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Camera className="h-5 w-5 text-red-500" />
                         What to Pack
                       </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+              </CardHeader>
+              <CardContent>
                       <Accordion type="multiple" className="w-full">
                         <AccordionItem value="spring">
                           <AccordionTrigger>Spring</AccordionTrigger>
@@ -455,8 +455,8 @@ export default function GuidePage() {
                         <h4 className="font-medium">Taxi Overcharging</h4>
                         <p className="text-sm text-gray-700">
                           Some taxis may take longer routes or claim the meter is broken. Use official taxis and insist on the meter.
-                        </p>
-                      </div>
+                    </p>
+                  </div>
                       <Separator />
                       <div className="space-y-2">
                         <h4 className="font-medium">"Tea Ceremony" Scam</h4>
@@ -512,11 +512,11 @@ export default function GuidePage() {
                             <div>
                               <h4 className="font-medium">Gyeongbokgung Palace</h4>
                               <p className="text-sm text-gray-700">The largest of the Five Grand Palaces built during the Joseon Dynasty. Don't miss the Royal Guard Changing Ceremony.</p>
-                            </div>
+                  </div>
                             <div>
                               <h4 className="font-medium">Bukchon Hanok Village</h4>
                               <p className="text-sm text-gray-700">A traditional Korean village featuring hundreds of hanok (traditional houses) dating back to the Joseon Dynasty.</p>
-                            </div>
+                </div>
                             <div>
                               <h4 className="font-medium">N Seoul Tower</h4>
                               <p className="text-sm text-gray-700">Located on Namsan Mountain, it offers panoramic views of the city. Popular for love locks and its rotating restaurant.</p>
@@ -582,8 +582,8 @@ export default function GuidePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                    </CardContent>
-                  </Card>
+              </CardContent>
+            </Card>
                   
                   {/* 부산 */}
                   <Card>
@@ -601,7 +601,7 @@ export default function GuidePage() {
                           alt="Busan Coastline" 
                           className="w-full h-full object-cover"
                         />
-                      </div>
+                  </div>
                       
                       <p className="text-gray-700">
                         Busan is South Korea's second-largest city and main port, known for its beautiful beaches, fresh seafood, and vibrant atmosphere. With mountains meeting the sea, it offers both natural beauty and urban excitement.
@@ -681,7 +681,7 @@ export default function GuidePage() {
                         Jeju Island
                       </CardTitle>
                       <CardDescription>Korea's tropical paradise and UNESCO World Heritage site</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
                         <img 
@@ -689,7 +689,7 @@ export default function GuidePage() {
                           alt="Jeju Island" 
                           className="w-full h-full object-cover"
                         />
-                      </div>
+                    </div>
                       
                       <p className="text-gray-700">
                         Jeju is South Korea's largest island and a popular holiday destination known for its volcanic landscapes, waterfalls, beaches, and unique cultural heritage. Often called "Korea's Hawaii," it offers a distinct atmosphere from mainland Korea.
@@ -702,23 +702,23 @@ export default function GuidePage() {
                             <div>
                               <h4 className="font-medium">Mount Hallasan</h4>
                               <p className="text-sm text-gray-700">South Korea's highest mountain and an active volcano. Features stunning hiking trails and a crater lake at the summit.</p>
-                            </div>
+                    </div>
                             <div>
                               <h4 className="font-medium">Seongsan Ilchulbong (Sunrise Peak)</h4>
                               <p className="text-sm text-gray-700">A UNESCO World Heritage Site featuring a 182m high tuff cone created by hydrovolcanic eruptions. Famous for stunning sunrise views.</p>
-                            </div>
+                    </div>
                             <div>
                               <h4 className="font-medium">Cheonjeyeon Waterfall</h4>
                               <p className="text-sm text-gray-700">The "Pond of God" features three-tier waterfalls in a lush forest setting with a legend-inspired Seonimgyo Bridge.</p>
-                            </div>
+                    </div>
                             <div>
                               <h4 className="font-medium">Manjanggul Cave</h4>
                               <p className="text-sm text-gray-700">One of the longest lava tubes in the world with impressive volcanic structures and a huge lava column.</p>
-                            </div>
+                    </div>
                             <div>
                               <h4 className="font-medium">Jeju Folk Village</h4>
                               <p className="text-sm text-gray-700">An open-air museum showcasing traditional Jeju culture, houses, and daily life from the past.</p>
-                            </div>
+                  </div>
                           </AccordionContent>
                         </AccordionItem>
                         
@@ -762,14 +762,14 @@ export default function GuidePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                    </CardContent>
-                  </Card>
+                </CardContent>
+              </Card>
                 </div>
-                
+
                 {/* 사이드바 */}
                 <div className="space-y-6">
                   <Card>
-                    <CardHeader>
+                <CardHeader>
                       <CardTitle>Plan Your Trip</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -796,7 +796,7 @@ export default function GuidePage() {
                             <span>10-14 days</span>
                           </li>
                         </ul>
-                      </div>
+                  </div>
                       
                       <div className="bg-blue-50 p-4 rounded-lg">
                         <h4 className="font-medium text-blue-700 flex items-center gap-1.5 mb-2">
@@ -829,40 +829,40 @@ export default function GuidePage() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Other Notable Destinations</CardTitle>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="p-0">
                       <div className="divide-y">
                         <div className="p-4 hover:bg-gray-50 transition-colors">
                           <h4 className="font-medium mb-1">Gyeongju</h4>
                           <p className="text-sm text-gray-600">Ancient capital with historic sites and temples</p>
-                        </div>
+                    </div>
                         <div className="p-4 hover:bg-gray-50 transition-colors">
                           <h4 className="font-medium mb-1">Jeonju</h4>
                           <p className="text-sm text-gray-600">Traditional hanok village and food culture</p>
-                        </div>
+                    </div>
                         <div className="p-4 hover:bg-gray-50 transition-colors">
                           <h4 className="font-medium mb-1">Seoraksan National Park</h4>
                           <p className="text-sm text-gray-600">Stunning mountain landscapes and hiking</p>
-                        </div>
+                    </div>
                         <div className="p-4 hover:bg-gray-50 transition-colors">
                           <h4 className="font-medium mb-1">Andong</h4>
                           <p className="text-sm text-gray-600">UNESCO-listed folk village and mask dance</p>
-                        </div>
+                    </div>
                         <div className="p-4 hover:bg-gray-50 transition-colors">
                           <h4 className="font-medium mb-1">Sokcho</h4>
                           <p className="text-sm text-gray-600">Coastal city with beaches and seafood</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
                   <SponsoredContent
                     title="Plan Your Korea Adventure"
                     description="Get exclusive discounts on tours, accommodations, and experiences"
                     action="View Deals"
                     href="#"
                   />
-                </div>
+                  </div>
               </div>
             </TabsContent>
             
@@ -878,7 +878,7 @@ export default function GuidePage() {
                         Introduction to Korean Cuisine
                       </CardTitle>
                       <CardDescription>Essential dishes and dining culture</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-gray-700">
                         Korean cuisine is known for its bold flavors, extensive use of fermentation, and healthy ingredients. Meals typically consist of rice, soup, and various side dishes (banchan). The dining experience is often communal, with multiple shared dishes placed in the center of the table.
@@ -987,26 +987,26 @@ export default function GuidePage() {
                               Korean BBQ (Gogi-gui) is a communal dining experience where meat is grilled at your table. It's typically enjoyed with various side dishes, dipping sauces, and vegetables for wrapping.
                             </p>
                             
-                            <div className="space-y-3">
+                  <div className="space-y-3">
                               <h4 className="font-medium">Popular BBQ Meats:</h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div className="bg-gray-50 p-3 rounded">
                                   <span className="font-medium">Samgyeopsal (삼겹살)</span>
                                   <p className="text-sm text-gray-600">Pork belly slices</p>
-                                </div>
+                    </div>
                                 <div className="bg-gray-50 p-3 rounded">
                                   <span className="font-medium">Galbi (갈비)</span>
                                   <p className="text-sm text-gray-600">Marinated beef short ribs</p>
-                                </div>
+                    </div>
                                 <div className="bg-gray-50 p-3 rounded">
                                   <span className="font-medium">Chadolbaegi (차돌박이)</span>
                                   <p className="text-sm text-gray-600">Thinly sliced beef brisket</p>
-                                </div>
+                    </div>
                                 <div className="bg-gray-50 p-3 rounded">
                                   <span className="font-medium">Dak-galbi (닭갈비)</span>
                                   <p className="text-sm text-gray-600">Spicy marinated chicken</p>
-                                </div>
-                              </div>
+                    </div>
+                  </div>
                             </div>
                             
                             <div className="space-y-2">
@@ -1068,16 +1068,16 @@ export default function GuidePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                    </CardContent>
-                  </Card>
-                </div>
-                
+                </CardContent>
+              </Card>
+            </div>
+
                 {/* 사이드바 */}
                 <div className="space-y-6">
-                  <Card>
-                    <CardHeader>
+            <Card>
+              <CardHeader>
                       <CardTitle>Dietary Considerations</CardTitle>
-                    </CardHeader>
+              </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-3">
                         <div className="bg-amber-50 p-3 rounded-lg">
@@ -1094,8 +1094,8 @@ export default function GuidePage() {
                           <h4 className="font-medium text-blue-700 mb-1">Gluten-Free</h4>
                           <p className="text-sm text-blue-700">
                             Many Korean dishes are rice-based, but be cautious of soy sauce (contains wheat). Korean glass noodles (japchae) are made from sweet potato starch and are gluten-free.
-                          </p>
-                        </div>
+                    </p>
+                  </div>
                         
                         <div className="bg-red-50 p-3 rounded-lg">
                           <h4 className="font-medium text-red-700 mb-1">Spice Levels</h4>
@@ -1114,10 +1114,10 @@ export default function GuidePage() {
                     <CardContent className="space-y-4">
                       <div className="border-b pb-3">
                         <h4 className="font-medium mb-1">Traditional Markets</h4>
-                        <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600">
                           Gwangjang Market (Seoul), Jagalchi Market (Busan)
-                        </p>
-                      </div>
+                    </p>
+                  </div>
                       <div className="border-b pb-3">
                         <h4 className="font-medium mb-1">Restaurant Districts</h4>
                         <p className="text-sm text-gray-600">
@@ -1137,9 +1137,9 @@ export default function GuidePage() {
                           <span>Want to see must-visit restaurants?</span>
                           <ExternalLink className="h-4 w-4" />
                         </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
+                </div>
+              </CardContent>
+            </Card>
                   
                   <Card className="mt-4">
                     <CardHeader className="pb-2">
@@ -1147,10 +1147,10 @@ export default function GuidePage() {
                       <CardDescription>What's popular right now</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                         <div className="bg-purple-100 p-2 rounded-full">
                           <Coffee className="h-4 w-4 text-purple-500" />
-                        </div>
+                  </div>
                         <div>
                           <h4 className="font-medium text-sm">Specialty Cafes</h4>
                           <p className="text-xs text-gray-500">Themed cafes are huge in Korea</p>
@@ -1198,7 +1198,7 @@ export default function GuidePage() {
                         Public Transportation
                       </CardTitle>
                       <CardDescription>Korea's efficient and modern transit system</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-gray-700">
                         South Korea boasts one of the world's most efficient and modern public transportation systems. Major cities are well-connected by subway, bus, and train networks that are clean, punctual, and affordable.
@@ -1218,22 +1218,22 @@ export default function GuidePage() {
                                 <div className="bg-green-100 text-green-800 p-2 rounded text-center text-sm">Line 2</div>
                                 <div className="bg-orange-100 text-orange-800 p-2 rounded text-center text-sm">Line 3</div>
                                 <div className="bg-blue-100 text-blue-800 p-2 rounded text-center text-sm">Line 4</div>
-                              </div>
-                            </div>
+                    </div>
+                    </div>
                             
                             <div className="space-y-2">
                               <h4 className="font-medium">Busan Metro</h4>
                               <p className="text-sm text-gray-700">
                                 4 lines covering major areas of Busan, with connections to Gimhae Airport.
                               </p>
-                            </div>
+                    </div>
                             
                             <div className="space-y-2">
                               <h4 className="font-medium">Other Cities</h4>
                               <p className="text-sm text-gray-700">
                                 Daegu, Daejeon, Gwangju, and Incheon also have subway systems, though smaller than Seoul's.
                               </p>
-                            </div>
+                    </div>
                             
                             <div className="bg-blue-50 p-3 rounded-lg">
                               <h4 className="font-medium text-blue-700 mb-1">Subway Tips</h4>
@@ -1244,7 +1244,7 @@ export default function GuidePage() {
                                 <li>• Most stations have numbered exits to help navigation</li>
                                 <li>• Digital displays show train arrival times</li>
                               </ul>
-                            </div>
+                    </div>
                           </AccordionContent>
                         </AccordionItem>
                         
@@ -1259,7 +1259,7 @@ export default function GuidePage() {
                               <div className="border rounded-lg overflow-hidden">
                                 <div className="bg-blue-500 p-2 text-white font-medium text-center">
                                   Blue Buses
-                                </div>
+                  </div>
                                 <div className="p-3">
                                   <p className="text-sm text-gray-700">Main arterial routes, traveling long distances across the city</p>
                                 </div>
@@ -1356,9 +1356,9 @@ export default function GuidePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                    </CardContent>
-                  </Card>
-                  
+                </CardContent>
+              </Card>
+
                   {/* 교통 카드 */}
                   <Card>
                     <CardHeader className="pb-2">
@@ -1374,7 +1374,7 @@ export default function GuidePage() {
                           <div className="aspect-video rounded-lg bg-gradient-to-r from-purple-400 to-blue-400 mb-3 flex items-center justify-center">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
                               <span className="text-white font-bold text-lg">T-money Card</span>
-                            </div>
+                  </div>
                           </div>
                           <h4 className="font-medium mb-1">T-money Card</h4>
                           <p className="text-sm text-gray-700 mb-2">
@@ -1437,8 +1437,8 @@ export default function GuidePage() {
                         <Camera className="h-5 w-5 text-red-500" />
                         What to Pack
                       </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                </CardHeader>
+                <CardContent>
                       <Accordion type="multiple" className="w-full">
                         <AccordionItem value="spring">
                           <AccordionTrigger>Spring</AccordionTrigger>
@@ -1507,21 +1507,21 @@ export default function GuidePage() {
                         <p className="text-sm text-gray-700">
                           Some taxis may take longer routes or claim the meter is broken. Use official taxis and insist on the meter.
                         </p>
-                      </div>
+                    </div>
                       <Separator />
                       <div className="space-y-2">
                         <h4 className="font-medium">"Tea Ceremony" Scam</h4>
                         <p className="text-sm text-gray-700">
                           Friendly locals invite you to an expensive traditional tea ceremony and leave you with the bill.
                         </p>
-                      </div>
+                    </div>
                       <Separator />
                       <div className="space-y-2">
                         <h4 className="font-medium">Counterfeit Goods</h4>
                         <p className="text-sm text-gray-700">
                           Be cautious of unusually cheap luxury items or electronics, especially in markets.
                         </p>
-                      </div>
+                    </div>
                     </CardContent>
                   </Card>
                   
@@ -1535,11 +1535,11 @@ export default function GuidePage() {
                         <div className="flex items-center gap-3">
                           <div className="bg-yellow-100 p-2 rounded">
                             <Smartphone className="h-5 w-5 text-yellow-600" />
-                          </div>
+                    </div>
                           <div>
                             <h4 className="font-medium text-sm">Kakao Map</h4>
                             <p className="text-xs text-gray-500">Best for navigation and public transit</p>
-                          </div>
+                  </div>
                         </div>
                         
                         <div className="flex items-center gap-3">
@@ -1561,35 +1561,35 @@ export default function GuidePage() {
                             <p className="text-xs text-gray-500">Dedicated subway app with offline maps</p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                    
+                </CardContent>
+              </Card>
+
                     <Card>
                       <CardHeader className="pb-2">
                         <CardTitle>Long Distance Travel</CardTitle>
                         <CardDescription>Options for traveling between cities</CardDescription>
-                      </CardHeader>
+                </CardHeader>
                       <CardContent className="space-y-3">
-                        <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center">
                           <span className="font-medium text-sm">KTX (High-Speed)</span>
                           <Badge>Fastest</Badge>
-                        </div>
-                        <div className="flex justify-between items-center">
+                    </div>
+                    <div className="flex justify-between items-center">
                           <span className="font-medium text-sm">ITX/Saemaeul</span>
                           <Badge variant="outline">Mid-price</Badge>
-                        </div>
-                        <div className="flex justify-between items-center">
+                    </div>
+                    <div className="flex justify-between items-center">
                           <span className="font-medium text-sm">Mugunghwa</span>
                           <Badge variant="outline">Budget</Badge>
-                        </div>
-                        <div className="flex justify-between items-center">
+                    </div>
+                    <div className="flex justify-between items-center">
                           <span className="font-medium text-sm">Express Bus</span>
                           <Badge variant="outline">Flexible</Badge>
-                        </div>
+                    </div>
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-sm">Domestic Flight</span>
                           <Badge>Best for Jeju</Badge>
-                        </div>
+                  </div>
                         
                         <div className="mt-2 pt-2 border-t">
                           <a href="#" className="text-blue-600 hover:underline text-sm inline-flex items-center">
@@ -1597,8 +1597,8 @@ export default function GuidePage() {
                             Book train tickets online
                           </a>
                         </div>
-                      </CardContent>
-                    </Card>
+                </CardContent>
+              </Card>
                     
                     <SponsoredContent
                       title="Private Car Service"
@@ -1608,9 +1608,9 @@ export default function GuidePage() {
                     />
                   </div>
                 </div>
-              </div>
-            </TabsContent>
-            
+            </div>
+          </TabsContent>
+
             {/* 문화 탭 */}
             <TabsContent value="culture" className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1623,7 +1623,7 @@ export default function GuidePage() {
                         Cultural Etiquette
                       </CardTitle>
                       <CardDescription>Important customs and social norms</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-gray-700">
                         Understanding Korean cultural norms will enhance your travel experience and help you avoid unintentional offense. Koreans are generally forgiving of foreigners unfamiliar with local customs, but making an effort is always appreciated.
@@ -1646,13 +1646,13 @@ export default function GuidePage() {
                                 <li>Koreans may ask your age early in conversation to establish social hierarchy</li>
                                 <li>Different speech levels exist in Korean language based on relationship</li>
                               </ul>
-                            </div>
+                    </div>
                             
                             <div className="bg-amber-50 p-3 rounded-lg">
                               <p className="text-sm text-amber-700">
                                 <span className="font-medium">Tip:</span> When receiving something from an elder, it's customary to support your right arm with your left hand as a sign of respect.
                               </p>
-                            </div>
+                    </div>
                           </AccordionContent>
                         </AccordionItem>
                         
@@ -1670,7 +1670,7 @@ export default function GuidePage() {
                                 <li>30-45° bow: Shows greater respect to elders or in formal settings</li>
                                 <li>90° bow: Very formal, used in ceremonies or for deep apologies</li>
                               </ul>
-                            </div>
+                    </div>
                             
                             <div className="space-y-2">
                               <h4 className="font-medium">Physical Contact</h4>
@@ -1683,7 +1683,7 @@ export default function GuidePage() {
                                 <li>Avoid touching someone's head (considered sacred)</li>
                                 <li>Personal space may be smaller in crowded situations</li>
                               </ul>
-                            </div>
+                    </div>
                           </AccordionContent>
                         </AccordionItem>
                         
@@ -1704,7 +1704,7 @@ export default function GuidePage() {
                                 <li>Slurping noodles is acceptable and shows appreciation</li>
                                 <li>Keep conversation light and positive during meals</li>
                               </ul>
-                            </div>
+                  </div>
                             
                             <div className="space-y-2">
                               <h4 className="font-medium">Drinking Culture</h4>
@@ -1749,9 +1749,9 @@ export default function GuidePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                    </CardContent>
-                  </Card>
-                  
+                </CardContent>
+              </Card>
+
                   {/* 축제 및 전통 */}
                   <Card>
                     <CardHeader className="pb-2">
@@ -1760,7 +1760,7 @@ export default function GuidePage() {
                         Festivals and Traditions
                       </CardTitle>
                       <CardDescription>Seasonal celebrations and cultural events</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-gray-700">
                         Korean festivals offer visitors a chance to experience traditional culture, modern entertainment, and seasonal beauty. Many festivals are tied to agricultural cycles or historical events.
@@ -1774,20 +1774,20 @@ export default function GuidePage() {
                               alt="Cherry Blossom Festival" 
                               className="w-full h-full object-cover"
                             />
-                          </div>
+                    </div>
                           <div className="p-4">
                             <div className="flex items-center justify-between mb-2">
                               <h4 className="font-medium">Cherry Blossom Festivals</h4>
                               <Badge>April</Badge>
-                            </div>
+                    </div>
                             <p className="text-sm text-gray-700 mb-2">
                               Celebrations of spring when cherry trees bloom across the country. Major festivals in Jinhae, Yeouido (Seoul), and Gyeongju.
                             </p>
                             <div className="text-sm text-gray-500">
                               Features: Night illuminations, cultural performances, food stalls, photo zones
-                            </div>
-                          </div>
-                        </div>
+                    </div>
+                    </div>
+                  </div>
                         
                         <div className="border rounded-lg overflow-hidden">
                           <div className="aspect-video bg-blue-100">
@@ -1882,9 +1882,9 @@ export default function GuidePage() {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                  
+                </CardContent>
+              </Card>
+
                   {/* 한류와 현대 문화 */}
                   <Card>
                     <CardHeader className="pb-2">
@@ -1893,7 +1893,7 @@ export default function GuidePage() {
                         Hallyu (Korean Wave)
                       </CardTitle>
                       <CardDescription>Korea's global cultural influence</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-gray-700">
                         Hallyu refers to the global popularity of South Korean culture, including K-pop, K-dramas, movies, beauty products, and food. This cultural phenomenon has transformed Korea into a major soft power and tourist destination.
@@ -1937,22 +1937,22 @@ export default function GuidePage() {
                               <h4 className="font-medium">Popular Filming Locations</h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div className="bg-gray-50 p-3 rounded">
-                                  <span className="font-medium">Nami Island</span>
+                      <span className="font-medium">Nami Island</span>
                                   <p className="text-xs text-gray-600">Featured in "Winter Sonata"</p>
-                                </div>
+                    </div>
                                 <div className="bg-gray-50 p-3 rounded">
                                   <span className="font-medium">Bukchon Hanok Village</span>
                                   <p className="text-xs text-gray-600">Featured in numerous historical dramas</p>
-                                </div>
+                    </div>
                                 <div className="bg-gray-50 p-3 rounded">
                                   <span className="font-medium">Gangnam</span>
                                   <p className="text-xs text-gray-600">"Itaewon Class" and other modern dramas</p>
-                                </div>
+                    </div>
                                 <div className="bg-gray-50 p-3 rounded">
-                                  <span className="font-medium">Petite France</span>
+                      <span className="font-medium">Petite France</span>
                                   <p className="text-xs text-gray-600">"My Love From the Star"</p>
-                                </div>
-                              </div>
+                    </div>
+                  </div>
                             </div>
                             
                             <p className="text-sm text-gray-700">
@@ -1990,8 +1990,8 @@ export default function GuidePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                    </CardContent>
-                  </Card>
+                </CardContent>
+              </Card>
                   
                   {/* 생활 방식 */}
                   <Card>
@@ -2001,7 +2001,7 @@ export default function GuidePage() {
                         Modern Lifestyle
                       </CardTitle>
                       <CardDescription>Contemporary Korean culture and social trends</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-gray-700">
                         Beyond traditional culture, Korea has a vibrant contemporary lifestyle with unique social trends, cafés, nightlife, and technology that visitors find fascinating.
@@ -2059,8 +2059,8 @@ export default function GuidePage() {
                               <li>Food courts serving Korean snacks</li>
                               <li>Affordable place to spend the night</li>
                             </ul>
-                          </div>
-                        </div>
+                      </div>
+                    </div>
                         
                         <div className="border rounded-lg overflow-hidden">
                           <div className="bg-red-500 p-3 text-white font-medium">
@@ -2076,20 +2076,20 @@ export default function GuidePage() {
                               <li>Food and drink service available</li>
                               <li>Tambourines and simple instruments provided</li>
                               <li>Popular night activity for all age groups</li>
-                            </ul>
+                      </ul>
                           </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
                 </div>
-                
+
                 {/* 사이드바 */}
                 <div className="space-y-6">
                   <Card>
-                    <CardHeader>
+                <CardHeader>
                       <CardTitle>Cultural Experiences</CardTitle>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="border-b pb-3">
                         <h4 className="font-medium mb-1">Try Traditional Hanbok</h4>
@@ -2098,22 +2098,22 @@ export default function GuidePage() {
                         </p>
                         <div className="text-sm text-blue-600">
                           Bonus: Free entry to royal palaces when wearing hanbok
-                        </div>
-                      </div>
+                    </div>
+                    </div>
                       
                       <div className="border-b pb-3">
                         <h4 className="font-medium mb-1">Traditional Craft Workshops</h4>
                         <p className="text-sm text-gray-600">
                           Try hanji (paper) crafts, pottery making, or traditional dyeing in workshops throughout Seoul and other cities.
                         </p>
-                      </div>
+                    </div>
                       
                       <div className="border-b pb-3">
                         <h4 className="font-medium mb-1">Temple Stay Programs</h4>
                         <p className="text-sm text-gray-600">
                           Experience Buddhist monastic life with meditation, tea ceremonies, and temple food at locations throughout Korea.
                         </p>
-                      </div>
+                  </div>
                       
                       <div>
                         <h4 className="font-medium mb-1">Traditional Performances</h4>
@@ -2121,13 +2121,13 @@ export default function GuidePage() {
                           Watch performances of Korean traditional music (Gugak), dance, or martial arts at venues like the National Gugak Center.
                         </p>
                       </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader>
+                </CardContent>
+              </Card>
+
+            <Card>
+              <CardHeader>
                       <CardTitle>Survival Korean</CardTitle>
-                    </CardHeader>
+              </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <div className="bg-gray-50 p-2 rounded flex justify-between">
@@ -2233,8 +2233,8 @@ export default function GuidePage() {
                               <Check className="h-4 w-4 mt-0.5 flex-shrink-0" />
                               <span>Safe to use public transportation at night</span>
                             </li>
-                          </ul>
-                        </div>
+                    </ul>
+                  </div>
                         
                         <div className="bg-amber-50 p-4 rounded-lg">
                           <h4 className="font-medium text-amber-700 mb-2">Common Concerns</h4>
@@ -2263,9 +2263,9 @@ export default function GuidePage() {
                               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                               <span>Occasional political tensions with North Korea</span>
                             </li>
-                          </ul>
-                        </div>
-                      </div>
+                    </ul>
+                  </div>
+                </div>
                       
                       <div className="space-y-2">
                         <h4 className="font-medium">Safety Tips</h4>
@@ -2278,8 +2278,8 @@ export default function GuidePage() {
                           <li>Register with your country's embassy if staying for an extended period</li>
                         </ul>
                       </div>
-                    </CardContent>
-                  </Card>
+              </CardContent>
+            </Card>
                   
                   {/* 의료 및 건강 */}
                   <Card>
@@ -2289,7 +2289,7 @@ export default function GuidePage() {
                         Healthcare & Medical Services
                       </CardTitle>
                       <CardDescription>World-class medical facilities for travelers</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-gray-700">
                         South Korea boasts a world-class healthcare system with modern facilities and well-trained medical professionals. Many hospitals in major cities have international clinics with English-speaking staff.
@@ -2307,20 +2307,20 @@ export default function GuidePage() {
                               <div className="border-b pb-2">
                                 <h4 className="font-medium">University Hospitals</h4>
                                 <p className="text-sm text-gray-600">Large medical centers with all specialties and advanced technology. Many have international clinics.</p>
-                              </div>
+                    </div>
                               <div className="border-b pb-2">
                                 <h4 className="font-medium">General Hospitals</h4>
                                 <p className="text-sm text-gray-600">Medium to large facilities with multiple departments. Good for serious conditions.</p>
-                              </div>
+                    </div>
                               <div className="border-b pb-2">
                                 <h4 className="font-medium">Specialized Clinics</h4>
                                 <p className="text-sm text-gray-600">Private practices focusing on specific medical fields. Good for non-emergency issues.</p>
-                              </div>
-                              <div>
+                    </div>
+                    <div>
                                 <h4 className="font-medium">Pharmacies</h4>
                                 <p className="text-sm text-gray-600">Widely available and marked with a green cross sign. Some in tourist areas have English-speaking staff.</p>
-                              </div>
-                            </div>
+                    </div>
+                  </div>
                             
                             <div className="bg-blue-50 p-3 rounded-lg">
                               <h4 className="font-medium text-blue-700 mb-1">Recommended Hospitals with International Clinics</h4>
@@ -2388,9 +2388,9 @@ export default function GuidePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                    </CardContent>
-                  </Card>
-                  
+                </CardContent>
+              </Card>
+
                   {/* 긴급 상황 */}
                   <Card>
                     <CardHeader className="pb-2">
@@ -2399,7 +2399,7 @@ export default function GuidePage() {
                         Emergency Information
                       </CardTitle>
                       <CardDescription>Important contacts and procedures</CardDescription>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="border rounded-lg overflow-hidden">
@@ -2408,24 +2408,24 @@ export default function GuidePage() {
                           </div>
                           <div className="p-4 space-y-3">
                             <div className="flex justify-between items-center">
-                              <div>
+                    <div>
                                 <span className="font-medium">Police</span>
                                 <p className="text-xs text-gray-500">Crime reporting, emergencies</p>
-                              </div>
+                    </div>
                               <Badge variant="outline" className="text-lg">112</Badge>
                             </div>
                             <div className="flex justify-between items-center">
-                              <div>
+                    <div>
                                 <span className="font-medium">Fire / Ambulance</span>
                                 <p className="text-xs text-gray-500">Medical emergencies, fires</p>
-                              </div>
+                    </div>
                               <Badge variant="outline" className="text-lg">119</Badge>
                             </div>
                             <div className="flex justify-between items-center">
-                              <div>
+                    <div>
                                 <span className="font-medium">Tourist Helpline</span>
                                 <p className="text-xs text-gray-500">24/7 interpretation service</p>
-                              </div>
+                    </div>
                               <Badge variant="outline" className="text-lg">1330</Badge>
                             </div>
                           </div>
@@ -2436,7 +2436,7 @@ export default function GuidePage() {
                             English-Speaking Services
                           </div>
                           <div className="p-4 space-y-3">
-                            <div>
+                    <div>
                               <span className="font-medium">Embassy of Korea</span>
                               <p className="text-xs text-gray-500">For emergencies, call +82 2 399 1114</p>
                             </div>
@@ -2449,32 +2449,32 @@ export default function GuidePage() {
                               <p className="text-xs text-gray-500">For safety and legal assistance, call +82 2 399 1122</p>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
                 </div>
-                
+
                 {/* 사이드바 */}
                 <div className="space-y-6">
                   <Card>
-                    <CardHeader>
+                <CardHeader>
                       <CardTitle>Health Tips</CardTitle>
-                    </CardHeader>
+                </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <h4 className="font-medium">Common Health Issues</h4>
                         <p className="text-sm text-gray-700">
                           Korea has a modern healthcare system, but travelers may still experience common health issues. Be prepared for minor illnesses, allergies, and minor injuries.
                         </p>
-                      </div>
+                    </div>
                       
                       <div className="space-y-2">
                         <h4 className="font-medium">Medical Facilities</h4>
                         <p className="text-sm text-gray-700">
                           Hospitals and clinics are widely available in major cities. Emergency services are reliable, but medical staff may not speak English.
                         </p>
-                      </div>
+                    </div>
                       
                       <div className="space-y-2">
                         <h4 className="font-medium">Emergency Contacts</h4>
@@ -2487,7 +2487,7 @@ export default function GuidePage() {
                             <li>Tourist Police: +82 2 399 1122</li>
                           </ul>
                         </p>
-                      </div>
+                    </div>
                     </CardContent>
                   </Card>
                   
@@ -2501,7 +2501,7 @@ export default function GuidePage() {
                         <p className="text-sm text-gray-700">
                           Medical emergencies can happen at any time, and having travel insurance can provide peace of mind. It covers medical expenses, lost luggage, and other unexpected situations.
                         </p>
-                      </div>
+                    </div>
                       
                       <div className="space-y-2">
                         <h4 className="font-medium">Finding the Right Plan</h4>
@@ -2522,14 +2522,14 @@ export default function GuidePage() {
                             <li>Travel assistance services</li>
                           </ul>
                         </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader>
+                  </div>
+                </CardContent>
+              </Card>
+
+            <Card>
+              <CardHeader>
                       <CardTitle>Health and Safety Tips</CardTitle>
-                    </CardHeader>
+              </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <h4 className="font-medium">Food Safety</h4>
@@ -2553,8 +2553,8 @@ export default function GuidePage() {
                       </div>
                     </CardContent>
                   </Card>
-                </div>
-              </div>
+                      </div>
+                    </div>
             </TabsContent>
 
             {/* 쇼핑 탭 */}
@@ -2583,7 +2583,7 @@ export default function GuidePage() {
                               alt="Myeongdong Shopping District" 
                               className="w-full h-full object-cover"
                             />
-                          </div>
+                  </div>
                           <div className="p-4">
                             <h4 className="font-medium mb-1">Shopping Districts</h4>
                             <p className="text-sm text-gray-700 mb-2">
@@ -2743,12 +2743,12 @@ export default function GuidePage() {
                       </p>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
+                  <div>
                           <div className="aspect-video rounded-lg bg-gradient-to-r from-pink-100 to-pink-200 mb-3 flex items-center justify-center">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
                               <span className="text-pink-700 font-bold text-lg">K-Beauty</span>
-                            </div>
-                          </div>
+                      </div>
+                      </div>
                           <h4 className="font-medium mb-2">Korean Cosmetics & Skincare</h4>
                           <p className="text-sm text-gray-700 mb-3">
                             Korea is world-renowned for innovative skincare and makeup products, often featuring unique ingredients and cute packaging.
@@ -2761,14 +2761,14 @@ export default function GuidePage() {
                             <li>Sunscreens (lightweight and effective)</li>
                             <li>Popular brands: Innisfree, Etude House, COSRX, Laneige</li>
                           </ul>
-                        </div>
+                      </div>
                         
                         <div>
                           <div className="aspect-video rounded-lg bg-gradient-to-r from-amber-100 to-amber-200 mb-3 flex items-center justify-center">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
                               <span className="text-amber-700 font-bold text-lg">Traditional Crafts</span>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                           <h4 className="font-medium mb-2">Traditional Korean Souvenirs</h4>
                           <p className="text-sm text-gray-700 mb-3">
                             Authentic cultural items that showcase Korea's artistic heritage and make meaningful gifts.
@@ -2781,10 +2781,10 @@ export default function GuidePage() {
                             <li>Traditional masks and dolls</li>
                             <li>Best bought in: Insadong, Bukchon, folk villages</li>
                           </ul>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
                 </div>
                 
                 {/* 사이드바 */}
@@ -2860,8 +2860,8 @@ export default function GuidePage() {
                   </Card>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
+          </TabsContent>
+        </Tabs>
         </div>
       </div>
     </div>
