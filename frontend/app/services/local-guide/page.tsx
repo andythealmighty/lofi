@@ -14,10 +14,10 @@ import { SponsoredContent } from "@/components/sponsored-content"
 import Link from "next/link"
 
 export default function LocalGuidePage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedDate, setSelectedDate] = useState("")
-  const [selectedCity, setSelectedCity] = useState("")
-  const [selectedLanguage, setSelectedLanguage] = useState("")
+  const [searchQuery, setSearchQuery] = useState("all")
+  const [selectedDate, setSelectedDate] = useState("all")
+  const [selectedCity, setSelectedCity] = useState("all")
+  const [selectedLanguage, setSelectedLanguage] = useState("all")
   
   // 실제 앱에서는 API 호출로 가이드 목록을 가져옴
   const guides = [
@@ -70,7 +70,7 @@ export default function LocalGuidePage() {
                          guide.specialties.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
                          guide.intro.toLowerCase().includes(searchQuery.toLowerCase())
     
-    const matchesCity = !selectedCity || guide.cities.includes(selectedCity)
+    const matchesCity = selectedCity === "all" || guide.cities.includes(selectedCity)
     const matchesLanguage = !selectedLanguage || guide.languages.includes(selectedLanguage)
     
     return matchesSearch && matchesCity && matchesLanguage
@@ -114,7 +114,7 @@ export default function LocalGuidePage() {
                         <SelectValue placeholder="City" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Cities</SelectItem>
+                        <SelectItem value="all">All Cities</SelectItem>
                         <SelectItem value="Seoul">Seoul</SelectItem>
                         <SelectItem value="Busan">Busan</SelectItem>
                         <SelectItem value="Jeju">Jeju</SelectItem>
@@ -129,7 +129,7 @@ export default function LocalGuidePage() {
                         <SelectValue placeholder="Language" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Languages</SelectItem>
+                        <SelectItem value="all">All Languages</SelectItem>
                         <SelectItem value="English">English</SelectItem>
                         <SelectItem value="Chinese">Chinese</SelectItem>
                         <SelectItem value="Japanese">Japanese</SelectItem>
@@ -217,9 +217,9 @@ export default function LocalGuidePage() {
                   <div className="text-center py-8">
                     <p className="text-gray-500">No guides found matching your criteria.</p>
                     <Button variant="outline" className="mt-4" onClick={() => {
-                      setSearchQuery("")
-                      setSelectedCity("")
-                      setSelectedLanguage("")
+                      setSearchQuery("all")
+                      setSelectedCity("all")
+                      setSelectedLanguage("all")
                     }}>
                       Clear Filters
                     </Button>

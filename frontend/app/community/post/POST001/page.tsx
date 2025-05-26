@@ -1,141 +1,218 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, MessageSquare, Users, TrendingUp, Heart, Share2, MessageCircle, Search, Filter, Bell, Bookmark, ThumbsUp, PlusCircle, Tag, Calendar } from "lucide-react"
+import { useParams } from "next/navigation"
+import { ArrowLeft, Heart, Share2, MessageCircle, Send, Bookmark, MoreHorizontal, Reply } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { SponsoredContent } from "@/components/sponsored-content"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { mockCommunityPosts } from "@/lib/mock-data"
 import Link from "next/link"
 
-export default function CommunityPage() {
-  // 상태 관리
-  const [posts, setPosts] = useState(mockCommunityPosts)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [postType, setPostType] = useState("all")
-  const [sortBy, setSortBy] = useState("recent")
-  const [postContent, setPostContent] = useState("")
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({})
-  const [bookmarkedPosts, setBookmarkedPosts] = useState<Record<string, boolean>>({})
+export default function PostDetailPage() {
+  const params = useParams()
+  const postId = params.id as string
   
-  // 초기화 - mock data의 좋아요 상태 로드
+  const [post, setPost] = useState<any>(null)
+  const [comments, setComments] = useState<any[]>([])
+  const [commentText, setCommentText] = useState("")
+  const [isLiked, setIsLiked] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [replyToId, setReplyToId] = useState<string | null>(null)
+  const [replyToName, setReplyToName] = useState<string | null>(null)
+  const [likedComments, setLikedComments] = useState<Record<string, boolean>>({})
+  
+  // 포스트 데이터 로드
   useEffect(() => {
-    const initialLikedPosts: Record<string, boolean> = {};
-    const initialBookmarkedPosts: Record<string, boolean> = {};
-    
-    mockCommunityPosts.forEach(post => {
-      initialLikedPosts[post.id] = post.hasLiked || false;
-      initialBookmarkedPosts[post.id] = false;
-    });
-    
-    setLikedPosts(initialLikedPosts);
-    setBookmarkedPosts(initialBookmarkedPosts);
-  }, []);
-  
-  // 좋아요 토글 함수
-  const toggleLike = (postId: string) => {
-    setLikedPosts(prev => {
-      const newState = { ...prev, [postId]: !prev[postId] };
+    // 실제 앱에서는 API 호출로 포스트 데이터를 가져옴
+    const foundPost = mockCommunityPosts.find(p => p.id === postId)
+    if (foundPost) {
+      setPost(foundPost)
+      setIsLiked(foundPost.hasLiked || false)
       
-      // 실제 posts 배열에서도 좋아요 수 업데이트
-      setPosts(prevPosts => 
-        prevPosts.map(post => {
-          if (post.id === postId) {
-            const likeDelta = newState[postId] ? 1 : -1;
-            return { 
-              ...post, 
-              likes: post.likes + likeDelta,
-              hasLiked: newState[postId]
-            };
-          }
-          return post;
-        })
-      );
+      // Mock 댓글 생성
+      const mockComments = [
+        {
+          id: "c1",
+          author: {
+            name: "Emily Chen",
+            avatar: "/placeholder.svg?height=40&width=40",
+            badge: "Regular Visitor",
+          },
+          timestamp: "1 hour ago",
+          content: "I would recommend staying in Hongdae if you're interested in nightlife and a younger crowd. It's very vibrant with lots of street performances and good food options.",
+          likes: 8,
+          isLiked: false,
+        },
+        {
+          id: "c2",
+          author: {
+            name: "Soo-jin Park",
+            avatar: "/placeholder.svg?height=40&width=40",
+            badge: "Local Expert",
+          },
+          timestamp: "45 minutes ago",
+          content: "For first-time visitors, I think Myeongdong is a great choice. It's central, has lots of shopping, and is well-connected by public transportation. If you prefer something quieter but still convenient, try Insadong.",
+          likes: 15,
+          isLiked: true,
+        },
+      ]
       
-      return newState;
-    });
-  };
-  
-  // 북마크 토글 함수
-  const toggleBookmark = (postId: string) => {
-    setBookmarkedPosts(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }));
-  };
-  
-  // 새 포스트 작성 함수
-  const handleCreatePost = () => {
-    if (!postContent.trim()) return;
-    
-    const newPost = {
-      id: `POST${Date.now()}`,
-      author: {
-        name: "You",
-        avatar: "/placeholder.svg?height=40&width=40",
-        badge: "Traveler",
-        location: "KoreaTravelHub User",
-      },
-      timestamp: "Just now",
-      type: selectedTags.includes("Question") ? "question" : 
-            selectedTags.includes("Tip") ? "tip" : "experience",
-      tags: selectedTags.length > 0 ? selectedTags : ["General"],
-      title: postContent.split('\n')[0] || "New Post",
-      content: postContent,
-      likes: 0,
-      replies: 0,
-      hasLiked: false
-    };
-    
-    setPosts([newPost, ...posts]);
-    setPostContent("");
-    setSelectedTags([]);
-  };
-  
-  // 태그 토글 함수
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    );
-  };
-  
-  // 포스트 필터링
-  const filteredPosts = posts.filter(post => {
-    // 검색어 필터
-    const matchesSearch = searchQuery === "" || 
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // 포스트 타입 필터
-    const matchesType = postType === "all" || post.type === postType;
-    
-    return matchesSearch && matchesType;
-  });
-  
-  // 포스트 정렬
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
-    if (sortBy === "recent") {
-      // 실제로는 타임스탬프 비교가 필요하지만, mock data에서는 간단하게 처리
-      return posts.indexOf(a) - posts.indexOf(b);
-    } else if (sortBy === "popular") {
-      return b.likes - a.likes;
-    } else if (sortBy === "discussed") {
-      return b.replies - a.replies;
+      setComments(mockComments)
+      
+      // 좋아요 상태 초기화
+      const initialLikedComments: Record<string, boolean> = {}
+      mockComments.forEach(comment => {
+        initialLikedComments[comment.id] = false
+        if (comment.replies) {
+          comment.replies.forEach((reply: any) => {
+            initialLikedComments[reply.id] = false
+          })
+        }
+      })
+      setLikedComments(initialLikedComments)
     }
-    return 0;
-  });
+  }, [postId])
+  
+  // 좋아요 토글
+  const toggleLike = () => {
+    setIsLiked(!isLiked)
+    setPost(prev => ({
+      ...prev,
+      likes: isLiked ? prev.likes - 1 : prev.likes + 1,
+      hasLiked: !isLiked
+    }))
+  }
+  
+  // 북마크 토글
+  const toggleBookmark = () => {
+    setIsBookmarked(!isBookmarked)
+  }
+  
+  // 댓글 좋아요 토글
+  const toggleCommentLike = (commentId: string) => {
+    setLikedComments(prev => {
+      const newState = { ...prev, [commentId]: !prev[commentId] }
+      
+      // 댓글의 좋아요 수 업데이트
+      setComments(prevComments => 
+        prevComments.map(comment => {
+          if (comment.id === commentId) {
+            const likeDelta = newState[commentId] ? 1 : -1
+            return { ...comment, likes: comment.likes + likeDelta }
+          }
+          
+          // 대댓글 확인
+          if (comment.replies) {
+            const updatedReplies = comment.replies.map((reply: any) => {
+              if (reply.id === commentId) {
+                const likeDelta = newState[commentId] ? 1 : -1
+                return { ...reply, likes: reply.likes + likeDelta }
+              }
+              return reply
+            })
+            return { ...comment, replies: updatedReplies }
+          }
+          
+          return comment
+        })
+      )
+      
+      return newState
+    })
+  }
+  
+  // 댓글 작성
+  const handleSubmitComment = () => {
+    if (!commentText.trim()) return
+    
+    if (replyToId) {
+      // 대댓글 작성
+      const newReply = {
+        id: `reply${Date.now()}`,
+        author: {
+          name: "You",
+          avatar: "/placeholder.svg?height=40&width=40",
+          badge: "Traveler"
+        },
+        content: commentText,
+        timestamp: "방금 전",
+        likes: 0
+      }
+      
+      setComments(prevComments => 
+        prevComments.map(comment => {
+          if (comment.id === replyToId) {
+            return {
+              ...comment,
+              replies: [...(comment.replies || []), newReply]
+            }
+          }
+          return comment
+        })
+      )
+    } else {
+      // 일반 댓글 작성
+      const newComment = {
+        id: `comment${Date.now()}`,
+        author: {
+          name: "You",
+          avatar: "/placeholder.svg?height=40&width=40",
+          badge: "Traveler"
+        },
+        content: commentText,
+        timestamp: "방금 전",
+        likes: 0
+      }
+      
+      setComments([...comments, newComment])
+    }
+    
+    setCommentText("")
+    setReplyToId(null)
+    setReplyToName(null)
+  }
+  
+  // 대댓글 모드 설정
+  const setReplyMode = (commentId: string, authorName: string) => {
+    setReplyToId(commentId)
+    setReplyToName(authorName)
+    setCommentText(`@${authorName} `)
+    
+    // 댓글 입력 영역으로 스크롤
+    setTimeout(() => {
+      document.getElementById("comment-input")?.focus()
+    }, 100)
+  }
+  
+  // 대댓글 모드 취소
+  const cancelReplyMode = () => {
+    setReplyToId(null)
+    setReplyToName(null)
+    setCommentText("")
+  }
+  
+  if (!post) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 text-gray-400">
+            <MessageCircle className="h-12 w-12 mx-auto" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2">Post not found</h2>
+          <p className="text-gray-500 mb-4">The post you're looking for doesn't exist or has been removed.</p>
+          <Link href="/community">
+            <Button>Back to Community</Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -175,7 +252,7 @@ export default function CommunityPage() {
         </div>
 
         {/* 커뮤니티 통계 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardContent className="p-6 text-center">
               <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
@@ -186,20 +263,13 @@ export default function CommunityPage() {
           <Card>
             <CardContent className="p-6 text-center">
               <MessageSquare className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{posts.length.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-gray-900">{mockCommunityPosts.length.toLocaleString()}</div>
               <div className="text-sm text-gray-600">Community Posts</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6 text-center">
-              <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">24</div>
-              <div className="text-sm text-gray-600">Upcoming Events</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <TrendingUp className="h-8 w-8 text-amber-600 mx-auto mb-2" />
+              <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">98%</div>
               <div className="text-sm text-gray-600">Helpful Responses</div>
             </CardContent>
@@ -396,44 +466,38 @@ export default function CommunityPage() {
               </CardContent>
             </Card>
             
-            {/* 커뮤니티 이벤트 섹션 */}
+            {/* 이벤트 및 모임 */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle>Community Events</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Community Events</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 p-0">
-                <Link href="/community/events/event1">
-                  <div className="hover:bg-gray-50 transition-colors p-4 border-b">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-blue-600">Seoul Street Food Tour</h4>
-                      <Badge>June 15</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">Group meetup to explore Myeongdong street food</p>
-                    <div className="text-xs text-gray-500 flex items-center">
-                      <Users className="h-3.5 w-3.5 mr-1" />
-                      12 going
-                    </div>
+              <CardContent className="space-y-3">
+                <div className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer">
+                  <div className="flex justify-between mb-1">
+                    <h3 className="font-medium">Seoul Street Food Tour</h3>
+                    <Badge variant="outline">June 15</Badge>
                   </div>
-                </Link>
-                <Link href="/community/events/event2">
-                  <div className="hover:bg-gray-50 transition-colors p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-blue-600">Korean Language Exchange</h4>
-                      <Badge variant="outline">Weekly</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">Practice Korean with locals in Hongdae</p>
-                    <div className="text-xs text-gray-500 flex items-center">
-                      <Users className="h-3.5 w-3.5 mr-1" />
-                      25 going
-                    </div>
+                  <p className="text-sm text-gray-600 mb-2">Group meetup to explore Myeongdong street food</p>
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Users className="h-3 w-3" />
+                    <span>12 going</span>
                   </div>
-                </Link>
+                </div>
+                
+                <div className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer">
+                  <div className="flex justify-between mb-1">
+                    <h3 className="font-medium">Korean Language Exchange</h3>
+                    <Badge variant="outline">Weekly</Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">Practice Korean with locals in Hongdae</p>
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Users className="h-3 w-3" />
+                    <span>25 going</span>
+                  </div>
+                </div>
+                
+                <Button variant="outline" className="w-full">View All Events</Button>
               </CardContent>
-              <CardFooter className="pt-0">
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/community/events">View All Events</Link>
-                </Button>
-              </CardFooter>
             </Card>
             
             {/* 광고 콘텐츠 */}
@@ -452,25 +516,6 @@ export default function CommunityPage() {
                 <Link href="/community/guidelines" className="text-blue-600 hover:underline block mt-2">
                   Read full guidelines →
                 </Link>
-              </CardContent>
-            </Card>
-
-            {/* 커뮤니티 네비게이션 - 깔끔한 디자인으로 변경 */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle>Community Navigation</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="grid grid-cols-2 divide-x">
-                  <Link href="/community/events" className="p-4 text-center hover:bg-gray-50 transition-colors">
-                    <Calendar className="h-5 w-5 mx-auto mb-2 text-purple-500" />
-                    <span className="text-sm font-medium">Events</span>
-                  </Link>
-                  <Link href="/community/saved" className="p-4 text-center hover:bg-gray-50 transition-colors">
-                    <Bookmark className="h-5 w-5 mx-auto mb-2 text-blue-500" />
-                    <span className="text-sm font-medium">Saved Items</span>
-                  </Link>
-                </div>
               </CardContent>
             </Card>
           </div>
@@ -494,8 +539,8 @@ function PostCard({ post, isLiked, isBookmarked, onLikeToggle, onBookmarkToggle 
   const isLongContent = post.content.length > 300;
   
   return (
-    <Card className="mb-4 overflow-hidden">
-      <CardContent className="p-6">
+    <Card className="overflow-hidden">
+      <CardHeader>
         <div className="flex items-start gap-3">
           <Avatar>
             <AvatarImage src={post.author.avatar} />
@@ -529,59 +574,76 @@ function PostCard({ post, isLiked, isBookmarked, onLikeToggle, onBookmarkToggle 
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div>
-          <Link href={`/community/post/${post.id}`}>
-            <h3 className="text-xl font-bold mb-2 hover:text-primary transition-colors">
-              {post.title}
-            </h3>
-          </Link>
-          <p className="text-gray-700 mb-4 line-clamp-3">{post.content}</p>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <Badge>
+              {post.type === "question" ? "Question" : 
+               post.type === "tip" ? "Tip" : "Experience"}
+            </Badge>
+            {post.tags.map((tag: string, index: number) => (
+              tag !== "Question" && tag !== "Tip" && tag !== "Experience" && (
+                <Badge key={index} variant="outline">{tag}</Badge>
+              )
+            ))}
+          </div>
+          <h3 className="font-semibold text-lg">{post.title}</h3>
+          <div className="text-gray-700">
+            {isLongContent && !showFullContent ? (
+              <>
+                <p>{post.content.substring(0, 300)}...</p>
+                <Button 
+                  variant="link" 
+                  className="px-0 h-auto font-normal"
+                  onClick={() => setShowFullContent(true)}
+                >
+                  Read more
+                </Button>
+              </>
+            ) : (
+              <p>{post.content}</p>
+            )}
+          </div>
           
-          {/* 포스트 이미지 (있을 경우) */}
-          {post.image && (
-            <div className="mb-4 rounded-lg overflow-hidden">
-              <img src={post.image} alt={post.title} className="w-full object-cover" />
+          {post.details && (
+            <div className="bg-gray-50 p-3 rounded-lg">
+              {Object.entries(post.details).map(([key, value]) => (
+                <p key={key} className="text-sm">
+                  <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {value as string}
+                </p>
+              ))}
             </div>
           )}
           
-          {/* 반응 버튼 */}
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={isLiked ? "text-red-500" : ""}
-              onClick={(e) => {
-                e.preventDefault();
-                onLikeToggle();
-              }}
+          <div className="flex items-center gap-4 pt-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={`gap-2 ${isLiked ? 'text-red-500' : ''}`}
+              onClick={onLikeToggle}
             >
-              <Heart className={`h-4 w-4 mr-1 ${isLiked ? "fill-red-500" : ""}`} />
-              <span>{post.likes}</span>
+              <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
+              {post.likes}
             </Button>
-            
-            {/* 댓글 버튼 추가 */}
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-            >
-              <Link href={`/community/post/${post.id}#comments`}>
-                <MessageCircle className="h-4 w-4 mr-1" />
-                <span>{post.replies}</span>
-              </Link>
+            <Button variant="ghost" size="sm" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              {post.replies} {post.replies === 1 ? 'reply' : 'replies'}
             </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              className={isBookmarked ? "text-primary" : ""}
-              onClick={(e) => {
-                e.preventDefault();
-                onBookmarkToggle();
-              }}
-            >
-              <Bookmark className={`h-4 w-4 mr-1 ${isBookmarked ? "fill-primary" : ""}`} />
+            <Button variant="ghost" size="sm" className="gap-2">
+              <Share2 className="h-4 w-4" />
+              Share
             </Button>
+            <div className="ml-auto">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={isBookmarked ? 'text-blue-600' : ''}
+                onClick={onBookmarkToggle}
+              >
+                <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

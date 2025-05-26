@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, Image, MapPin, Tag, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -10,13 +11,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function CreatePostPage() {
+  const router = useRouter()
   const [postType, setPostType] = useState("question")
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [location, setLocation] = useState("")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   
   const availableTags = {
     cities: ["Seoul", "Busan", "Jeju", "Incheon", "Gyeongju", "Gangneung"],
@@ -28,6 +32,24 @@ export default function CreatePostPage() {
     setSelectedTags(prev => 
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     )
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // 실제 구현에서는 API 호출로 데이터 저장
+    console.log({ title, content, postType, location, selectedTags, imagePreview })
+    router.push("/community")
   }
 
   return (
@@ -166,11 +188,27 @@ export default function CreatePostPage() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Button variant="outline" className="gap-2">
-                  <Image className="h-4 w-4" />
-                  Add Images
-                </Button>
+              <div className="space-y-2">
+                <Label htmlFor="image">Image (Optional)</Label>
+                <div className="flex items-center gap-4">
+                  <Button type="button" variant="outline" className="w-full h-32" onClick={() => document.getElementById("image")?.click()}>
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center text-gray-500">
+                        <Image className="h-8 w-8 mb-2" />
+                        <span>Upload Image</span>
+                      </div>
+                    )}
+                  </Button>
+                  <input 
+                    type="file" 
+                    id="image" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleImageChange}
+                  />
+                </div>
               </div>
             </CardContent>
             
