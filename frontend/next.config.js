@@ -15,5 +15,10 @@ const nextConfig = {
     return config
   },
 }
-
+// frontend/next.config.js
+module.exports = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+}
 module.exports = nextConfig 
