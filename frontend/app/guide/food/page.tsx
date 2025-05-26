@@ -599,7 +599,13 @@ export default function FoodGuidePage() {
                 </CardContent>
               </Card>
               
-              <SponsoredContent type="sidebar" />
+              <SponsoredContent 
+                type="sidebar" 
+                title="Korean Cooking Class" 
+                description="Learn authentic Korean recipes with local chefs" 
+                action="Book Now" 
+                href="/experiences/cooking-class" 
+              />
             </div>
           </div>
         </div>

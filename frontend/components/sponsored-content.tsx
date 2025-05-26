@@ -4,57 +4,57 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 
 interface SponsoredContentProps {
-  type: 'sidebar' | 'inline' | 'banner'
-  category?: string
-  className?: string
-  title: string;
-  description: string;
-  action: string;
-  href: string;
+  type?: 'sidebar' | 'inline' | 'banner';
+  category?: string;
+  className?: string;
+  title?: string;
+  description?: string;
+  action?: string;
+  href?: string;
 }
 
 export function SponsoredContent({ 
-  type = 'sidebar',  // 기본값 제공
+  type = 'sidebar',
   category, 
   className = '', 
-  title, 
-  description, 
-  action, 
-  href 
+  title,
+  description,
+  action,
+  href
 }: SponsoredContentProps) {
   // 카테고리별 맞춤형 광고 콘텐츠 선택 로직
   const getContent = () => {
     // 실제 구현에서는 카테고리와 타입에 따라 다양한 광고 표시
     if (category === 'food') {
       return {
-        title: "Seoul Food Tour",
-        description: "Discover the best Korean flavors with expert guides",
+        title: title || "Seoul Food Tour",
+        description: description || "Discover the best Korean flavors with expert guides",
         image: "from-red-500 to-orange-500",
-        cta: "Book Now",
+        cta: action || "Book Now",
         sponsor: "SeoulFoodAdventures",
-        link: "/experiences/food-tour-special"
+        link: href || "/experiences/food-tour-special"
       }
     }
     
     if (category === 'kpop') {
       return {
-        title: "K-pop Dance Workshop",
-        description: "Learn from professional K-pop choreographers",
+        title: title || "K-pop Dance Workshop",
+        description: description || "Learn from professional K-pop choreographers",
         image: "from-purple-500 to-pink-500",
-        cta: "Join Workshop",
+        cta: action || "Join Workshop",
         sponsor: "K-dance Academy",
-        link: "/experiences/kpop-workshop"
+        link: href || "/experiences/kpop-workshop"
       }
     }
     
     // 기본 광고
     return {
-      title: "Korea Rail Pass",
-      description: "Unlimited train travel across Korea - 30% OFF",
+      title: title || "Korea Rail Pass",
+      description: description || "Unlimited train travel across Korea - 30% OFF",
       image: "from-blue-500 to-green-500",
-      cta: "Get Discount",
+      cta: action || "Get Discount",
       sponsor: "KoRail",
-      link: "/services/rail-pass"
+      link: href || "/services/rail-pass"
     }
   }
   
