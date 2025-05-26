@@ -90,6 +90,13 @@ interface PostCardProps {
   onBookmarkToggle: () => void;
 }
 
+interface SponsoredContentProps {
+  title: string;
+  description: string;
+  action: string;
+  href: string;
+}
+
 export default function PostDetailPage() {
   const params = useParams()
   const postId = params.id as string

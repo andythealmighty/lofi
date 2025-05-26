@@ -7,9 +7,13 @@ interface SponsoredContentProps {
   type: 'sidebar' | 'inline' | 'banner'
   category?: string
   className?: string
+  title: string;
+  description: string;
+  action: string;
+  href: string;
 }
 
-export function SponsoredContent({ type, category, className = '' }: SponsoredContentProps) {
+export function SponsoredContent({ type, category, className = '', title, description, action, href }: SponsoredContentProps) {
   // 카테고리별 맞춤형 광고 콘텐츠 선택 로직
   const getContent = () => {
     // 실제 구현에서는 카테고리와 타입에 따라 다양한 광고 표시
