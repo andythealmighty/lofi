@@ -3,19 +3,21 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
-      - POSTGRES_SERVER=db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=platform_for_foreigners
+      - MYSQL_SERVER=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=rootpassword
+      - MYSQL_DB=lofair
+      - MYSQL_PORT=3306
     depends_on:
       - db
     volumes:
       - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     networks:
       - app-network
 
@@ -34,20 +36,37 @@ services:
       - app-network
 
   db:
-    image: postgres:15
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=platform_for_foreigners
+    image: mysql:8.0
     ports:
-      - "5432:5432"
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=lofair
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
     networks:
       - app-network
 
+  migration:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - MYSQL_SERVER=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=rootpassword
+      - MYSQL_DB=lofair
+      - MYSQL_PORT=3306
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "alembic upgrade head"
+
 volumes:
-  postgres_data:
+  mysql_data:
 
 networks:
   app-network:

@@ -3,26 +3,27 @@ from typing import Optional
 import secrets
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Platform for Foreigners"
+    PROJECT_NAME: str = "LoFair"
     VERSION: str = "1.0.0"
-    API_V1_STR: str = "/api/v1"
+    API_STR: str = "/api"
     
     # Security
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     
-    # Database
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "platform_for_foreigners"
+    # Database - MySQL Configuration
+    MYSQL_SERVER: str = "localhost"
+    MYSQL_USER: str = "root"
+    MYSQL_PASSWORD: str = "rootpassword"
+    MYSQL_DB: str = "lofair"
+    MYSQL_PORT: str = "3306"
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
     @property
     def get_database_url(self) -> str:
         if self.SQLALCHEMY_DATABASE_URI:
             return self.SQLALCHEMY_DATABASE_URI
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
+        return f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}@{self.MYSQL_SERVER}:{self.MYSQL_PORT}/{self.MYSQL_DB}"
 
     class Config:
         case_sensitive = True

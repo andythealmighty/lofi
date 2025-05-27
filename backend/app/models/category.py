@@ -1,15 +1,15 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.db.base import Base
 
 class Category(Base):
     __tablename__ = "categories"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    description = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(String(500))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Category settings
     parent_id = Column(Integer, ForeignKey("categories.id"), nullable=True)

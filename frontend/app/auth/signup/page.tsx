@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, Github, Flag, Check } from "lucide-react"
+import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, Flag, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,21 +9,217 @@ import { Separator } from "@/components/ui/separator"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, FormEvent, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
-export default function SignUpPage() {
-  const [name, setName] = useState("")
+function SignUpPageInner() {
+  const router = useRouter()
+  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [nationality, setNationality] = useState("")
   const [step, setStep] = useState(1)
+  const [termsAgreed, setTermsAgreed] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false)
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    username?: string;
+  }>({})
   
-  const handleNextStep = () => {
-    if (step === 1 && email && password) {
-      setStep(2)
+  const validateEmail = (email: string) => {
+    return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+  }
+
+  const validatePassword = (password: string) => {
+    return password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password)
+  }
+
+  const validateUsername = (username: string) => {
+    return username.length >= 3 && username.length <= 15 && /^[a-zA-Z0-9_-]+$/.test(username)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setEmail(value)
+    if (value && !validateEmail(value)) {
+      setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }))
+    } else {
+      setErrors(prev => ({ ...prev, email: undefined }))
     }
   }
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setPassword(value)
+    if (value && !validatePassword(value)) {
+      setErrors(prev => ({ 
+        ...prev, 
+        password: "Password must be at least 8 characters long with letters and numbers" 
+      }))
+    } else {
+      setErrors(prev => ({ ...prev, password: undefined }))
+    }
+  }
+
+  const checkUsernameUniqueness = async (username: string) => {
+    if (!username || !validateUsername(username)) return
+
+    setIsCheckingUsername(true)
+    try {
+      const response = await fetch("/api/auth/check-username", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username })
+      })
+
+      const data = await response.json()
+      
+      if (data.exists) {
+        setErrors(prev => ({ 
+          ...prev, 
+          username: "This username is already taken" 
+        }))
+      } else {
+        setErrors(prev => ({ ...prev, username: undefined }))
+      }
+    } catch (error) {
+      setErrors(prev => ({ 
+        ...prev, 
+        username: "Unable to verify username. Please try again." 
+      }))
+    } finally {
+      setIsCheckingUsername(false)
+    }
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (username && validateUsername(username)) {
+        checkUsernameUniqueness(username)
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [username])
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setUsername(value)
+    if (value && !validateUsername(value)) {
+      setErrors(prev => ({ 
+        ...prev, 
+        username: "Username must be 3-15 characters long and can only contain letters, numbers, underscores, and hyphens" 
+      }))
+    } else {
+      if (!value || validateUsername(value)) {
+        setErrors(prev => ({ ...prev, username: undefined }))
+      }
+    }
+  }
+  
+  const handleNextStep = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    if (!email || !password) {
+      setErrors({
+        email: !email ? "Email is required" : undefined,
+        password: !password ? "Password is required" : undefined
+      })
+      return
+    }
+
+    if (!validateEmail(email)) {
+      setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }))
+      return
+    }
+
+    if (!validatePassword(password)) {
+      setErrors(prev => ({ 
+        ...prev, 
+        password: "Password must be at least 8 characters long with letters and numbers" 
+      }))
+      return
+    }
+
+    if (!termsAgreed) {
+      toast.error("Please agree to the Terms of Service and Privacy Policy")
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const checkResponse = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+
+      const data = await checkResponse.json()
+      
+      if (data.exists) {
+        setErrors(prev => ({ ...prev, email: "This email is already registered" }))
+        return
+      }
+
+      setStep(2)
+    } catch (error) {
+      setErrors(prev => ({ 
+        ...prev, 
+        email: "Unable to verify email. Please try again." 
+      }))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!username || !nationality) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (!validateUsername(username)) {
+      setErrors(prev => ({ 
+        ...prev, 
+        username: "Username must be 3-15 characters long and can only contain letters, numbers, underscores, and hyphens" 
+      }));
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          username,
+          nationality
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create account");
+      }
+
+      toast.success("Account created successfully!");
+      router.push("/auth/signin");
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create account");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   const handlePrevStep = () => {
     if (step === 2) {
@@ -36,9 +232,26 @@ export default function SignUpPage() {
     "Germany", "France", "Japan", "China", "Singapore", "India"
   ]
 
+  const isFormValid = () => {
+    return email && 
+           password && 
+           validateEmail(email) && 
+           validatePassword(password) && 
+           termsAgreed
+  }
+
+  const isSecondStepValid = () => {
+    return username && 
+           validateUsername(username) && 
+           nationality && 
+           !isLoading &&
+           !isCheckingUsername &&
+           !errors.username
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* 네비게이션 */}
+      {/* Navigation */}
       <div className="container mx-auto px-4 py-4">
         <Link href="/" className="flex items-center space-x-2 w-fit">
           <ArrowLeft className="h-5 w-5" />
@@ -49,7 +262,7 @@ export default function SignUpPage() {
         </Link>
       </div>
       
-      {/* 회원가입 카드 */}
+      {/* Signup card */}
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="border-0 shadow-lg">
@@ -59,7 +272,7 @@ export default function SignUpPage() {
                 Join KoreaTravelHub to plan your perfect Korean adventure
               </CardDescription>
               
-              {/* 단계 표시기 */}
+              {/* Step indicator */}
               <div className="flex justify-center items-center mt-4">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 1 ? 'bg-red-500 text-white' : 'bg-green-100 text-green-600'}`}>
                   {step > 1 ? <Check className="h-5 w-5" /> : "1"}
@@ -70,171 +283,90 @@ export default function SignUpPage() {
                 </div>
               </div>
             </CardHeader>
-            
-            <CardContent className="space-y-4">
-              {step === 1 ? (
-                <>
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <Button variant="outline" className="flex-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5 mr-2">
-                        <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-                        <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-                        <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-                        <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
-                      </svg>
-                      Google
-                    </Button>
-                    <Button variant="outline" className="flex-1">
-                      <Github className="h-5 w-5 mr-2" />
-                      GitHub
-                    </Button>
-                  </div>
-                  
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <Separator className="w-full" />
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="px-2 bg-white text-sm text-gray-500">or with email</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="email"
-                          placeholder="name@example.com"
-                          type="email"
-                          className="pl-10"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          className="pl-10 pr-10"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          type="button"
-                          className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Password must be at least 8 characters long with letters and numbers
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="terms" />
-                      <label
-                        htmlFor="terms"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        I agree to the <Link href="/terms" className="text-blue-600 hover:text-blue-800">Terms of Service</Link> and <Link href="/privacy" className="text-blue-600 hover:text-blue-800">Privacy Policy</Link>
-                      </label>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-4">
+
+            {step === 1 ? (
+              <form onSubmit={handleNextStep}>
+                <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="email">Email</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        id="name"
-                        placeholder="John Doe"
-                        className="pl-10"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="name@example.com"
+                        className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                        value={email}
+                        onChange={handleEmailChange}
+                        required
+                        autoComplete="email"
                       />
                     </div>
+                    {errors.email && (
+                      <p className="text-sm text-red-500">{errors.email}</p>
+                    )}
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="nationality">Nationality</Label>
+                    <Label htmlFor="password">Password</Label>
                     <div className="relative">
-                      <Flag className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Select value={nationality} onValueChange={setNationality}>
-                        <SelectTrigger className="pl-10">
-                          <SelectValue placeholder="Select your country" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">Select a country</SelectItem>
-                          {popularCountries.map(country => (
-                            <SelectItem key={country} value={country.toLowerCase().replace(/\s+/g, '-')}>
-                              {country}
-                            </SelectItem>
-                          ))}
-                          {/* 여기에 더 많은 국가 추가 */}
-                        </SelectContent>
-                      </Select>
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                        value={password}
+                        onChange={handlePasswordChange}
+                        required
+                        autoComplete="new-password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
                     </div>
+                    {errors.password && (
+                      <p className="text-sm text-red-500">{errors.password}</p>
+                    )}
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Travel Interests</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="interest-culture" />
-                        <label htmlFor="interest-culture" className="text-sm">Culture & History</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="interest-food" />
-                        <label htmlFor="interest-food" className="text-sm">Food & Culinary</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="interest-kpop" />
-                        <label htmlFor="interest-kpop" className="text-sm">K-Pop & Entertainment</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="interest-nature" />
-                        <label htmlFor="interest-nature" className="text-sm">Nature & Outdoor</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="interest-shopping" />
-                        <label htmlFor="interest-shopping" className="text-sm">Shopping</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="interest-nightlife" />
-                        <label htmlFor="interest-nightlife" className="text-sm">Nightlife</label>
-                      </div>
-                    </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="terms"
+                      name="terms"
+                      checked={termsAgreed}
+                      onCheckedChange={(checked) => setTermsAgreed(checked as boolean)}
+                      required
+                    />
+                    <label
+                      htmlFor="terms"
+                      className="text-sm text-gray-600"
+                    >
+                      I agree to the{" "}
+                      <Link href="/terms" className="text-blue-600 hover:text-blue-800">
+                        Terms of Service
+                      </Link>{" "}
+                      and{" "}
+                      <Link href="/privacy" className="text-blue-600 hover:text-blue-800">
+                        Privacy Policy
+                      </Link>
+                    </label>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Communication Preferences</Label>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="pref-newsletter" />
-                      <label htmlFor="pref-newsletter" className="text-sm">
-                        Send me travel tips, deals, and updates about Korea
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-            
-            <CardFooter className="flex flex-col space-y-4">
-              {step === 1 ? (
-                <>
-                  <Button className="w-full" onClick={handleNextStep} disabled={!email || !password}>
-                    Continue
+                </CardContent>
+                <CardFooter className="flex flex-col space-y-4">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={!isFormValid() || isLoading}
+                  >
+                    {isLoading ? "Checking..." : "Continue"}
                   </Button>
                   <div className="text-center text-sm">
                     Already have an account?{" "}
@@ -242,25 +374,101 @@ export default function SignUpPage() {
                       Sign in
                     </Link>
                   </div>
-                </>
-              ) : (
-                <div className="flex gap-3 w-full">
-                  <Button variant="outline" className="flex-1" onClick={handlePrevStep}>
-                    Back
-                  </Button>
-                  <Button className="flex-1">
-                    Create Account
-                  </Button>
-                </div>
-              )}
-            </CardFooter>
+                </CardFooter>
+              </form>
+            ) : (
+              <form onSubmit={handleSignup}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="johndoe123"
+                        className={`pl-10 ${errors.username ? 'border-red-500' : ''}`}
+                        value={username}
+                        onChange={handleUsernameChange}
+                        required
+                        autoComplete="username"
+                        maxLength={15}
+                      />
+                      {isCheckingUsername && (
+                        <div className="absolute right-3 top-3">
+                          <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    {errors.username && (
+                      <p className="text-sm text-red-500">{errors.username}</p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Username must be 3-15 characters and can contain letters, numbers, underscores, and hyphens
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nationality">Nationality</Label>
+                    <div className="relative">
+                      <Flag className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+                      <Select value={nationality} onValueChange={setNationality} required>
+                        <SelectTrigger className="pl-10">
+                          <SelectValue placeholder="Select your nationality" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {popularCountries.map((country) => (
+                            <SelectItem key={country} value={country}>
+                              {country}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex flex-col space-y-4">
+                  <div className="flex gap-4 w-full">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={handlePrevStep}
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={!isSecondStepValid()}
+                    >
+                      {isLoading ? "Creating Account..." : "Create Account"}
+                    </Button>
+                  </div>
+                </CardFooter>
+              </form>
+            )}
           </Card>
-          
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p>By creating an account, you agree to our <Link href="/terms" className="underline">Terms of Service</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.</p>
-          </div>
         </div>
       </div>
     </div>
   )
+}
+
+export default function SignUpPage() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null
+  }
+
+  return <SignUpPageInner />
 }

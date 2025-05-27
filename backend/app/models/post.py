@@ -1,19 +1,20 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean, CHAR
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.db.base import Base
 
 class Post(Base):
     __tablename__ = "posts"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    content = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    title = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    user_id = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     # Post metadata
-    author_id = Column(Integer, ForeignKey("users.id"))
+    author_id = Column(CHAR(36), ForeignKey("users.id"))
     category_id = Column(Integer, ForeignKey("categories.id"))
     is_pinned = Column(Boolean, default=False)
     is_closed = Column(Boolean, default=False)
