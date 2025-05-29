@@ -72,6 +72,7 @@ function SignInPageInner() {
 
       // Store the token in localStorage for API calls
       localStorage.setItem("access_token", data.access_token)
+      console.log("저장된 토큰:", data.access_token)
       
       toast.success("Successfully signed in!")
       

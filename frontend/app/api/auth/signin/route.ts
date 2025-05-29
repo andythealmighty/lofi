@@ -32,10 +32,11 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json()
+    console.log("Backend login response:", data) // 디버깅용
     
     return NextResponse.json({
-      access_token: data.access_token,
-      token_type: data.token_type,
+      access_token: data.data?.access_token,
+      token_type: data.data?.token_type,
     })
   } catch (error) {
     console.error("Signin error:", error)

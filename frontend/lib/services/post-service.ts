@@ -102,7 +102,7 @@ export const PostService = {
 
   // 게시물 생성
   createPost: async (postData: PostCreateInput) => {
-    const response = await api.post('/api/posts', postData);
+    const response = await api.post('/api/posts/', postData);
     return response.data;
   },
 
