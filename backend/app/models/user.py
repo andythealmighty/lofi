@@ -1,9 +1,8 @@
 import uuid
-from sqlalchemy import Boolean, Column, String, DateTime, Text
+from sqlalchemy import Boolean, Column, String, DateTime, Text, Integer, ForeignKey
 from sqlalchemy.dialects.mysql import CHAR
-from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
-from app.db.base import Base
+from app.db.base_class import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -29,3 +28,5 @@ class User(Base):
     # User preferences
     preferred_language = Column(String(10), default="en")
     notification_settings = Column(String(1000), default="{}")  # JSON string for notification preferences 
+
+    # 관계 정의는 relationships.py에서 설정 

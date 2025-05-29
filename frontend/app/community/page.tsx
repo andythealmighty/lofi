@@ -16,36 +16,119 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Separator } from "@/components/ui/separator"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { SponsoredContent } from "@/components/sponsored-content"
-import { mockCommunityPosts } from "@/lib/mock-data"
 import Link from "next/link"
+import { PostService, Post, PostCreateInput } from "@/lib/services/post-service"
+import { toast } from "sonner"
+
+// Post UI 타입 정의
+interface PostUI {
+  id: string;
+  author: {
+    name: string;
+    avatar: string;
+    badge: string;
+    location: string;
+  };
+  timestamp: string;
+  type: string;
+  tags: string[];
+  title: string;
+  content: string;
+  likes: number;
+  replies: number;
+  hasLiked: boolean;
+  image?: string;  // 옵션으로 추가
+}
+
+// 백엔드 Post 타입을 프론트엔드 UI에 맞게 변환하는 함수
+const mapPostToUI = (post: Post, username: string = "Anonymous", additionalTags: string[] = []) => {
+  return {
+    id: post.id.toString(),
+    author: {
+      name: post.is_anonymous ? "Anonymous" : username,
+      avatar: "/placeholder.svg?height=40&width=40",
+      badge: "Traveler",
+      location: "KoreaTravelHub User",
+    },
+    timestamp: new Date(post.created_at).toLocaleDateString(),
+    type: post.category_id === 1 ? "question" : 
+          post.category_id === 2 ? "tip" : "experience",
+    tags: additionalTags,
+    title: post.title,
+    content: post.content,
+    likes: 0,
+    replies: post.comments?.length || 0,
+    hasLiked: false
+  };
+};
 
 export default function CommunityPage() {
   // 상태 관리
-  const [posts, setPosts] = useState(mockCommunityPosts)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [postType, setPostType] = useState("all")
-  const [sortBy, setSortBy] = useState("recent")
-  const [postContent, setPostContent] = useState("")
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({})
-  const [bookmarkedPosts, setBookmarkedPosts] = useState<Record<string, boolean>>({})
+  const [posts, setPosts] = useState<PostUI[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [postType, setPostType] = useState("all");
+  const [sortBy, setSortBy] = useState("recent");
+  const [postContent, setPostContent] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Record<string, boolean>>({});
   
-  // 초기화 - mock data의 좋아요 상태 로드
+  // 게시물 로드
   useEffect(() => {
-    const initialLikedPosts: Record<string, boolean> = {};
-    const initialBookmarkedPosts: Record<string, boolean> = {};
-    
-    mockCommunityPosts.forEach(post => {
-      initialLikedPosts[post.id] = post.hasLiked || false;
-      initialBookmarkedPosts[post.id] = false;
-    });
-    
-    setLikedPosts(initialLikedPosts);
-    setBookmarkedPosts(initialBookmarkedPosts);
+    async function fetchPosts() {
+      try {
+        setLoading(true);
+        const fetchedPosts = await PostService.getPosts();
+        
+        if (fetchedPosts && Array.isArray(fetchedPosts) && fetchedPosts.length > 0) {
+          const uiPosts = fetchedPosts.map((post: Post) => mapPostToUI(post));
+          setPosts(uiPosts);
+          
+          // 좋아요 및 북마크 상태 초기화
+          const initialLikedPosts: Record<string, boolean> = {};
+          const initialBookmarkedPosts: Record<string, boolean> = {};
+          
+          uiPosts.forEach((post) => {
+            initialLikedPosts[post.id] = post.hasLiked || false;
+            initialBookmarkedPosts[post.id] = false;
+          });
+          
+          setLikedPosts(initialLikedPosts);
+          setBookmarkedPosts(initialBookmarkedPosts);
+        } else {
+          throw new Error("No posts returned");
+        }
+      } catch (err) {
+        console.error('Failed to fetch posts:', err);
+        setError('게시물을 불러오는 중 오류가 발생했습니다.');
+        // 임시 조치: 에러 발생시에도 UI가 보이도록 모의 데이터 사용
+        import("@/lib/mock-data").then(({ mockCommunityPosts }) => {
+          setPosts(mockCommunityPosts as PostUI[]);  // 타입 캐스팅 추가
+          
+          const initialLikedPosts: Record<string, boolean> = {};
+          const initialBookmarkedPosts: Record<string, boolean> = {};
+          
+          mockCommunityPosts.forEach(post => {
+            initialLikedPosts[post.id] = post.hasLiked || false;
+            initialBookmarkedPosts[post.id] = false;
+          });
+          
+          setLikedPosts(initialLikedPosts);
+          setBookmarkedPosts(initialBookmarkedPosts);
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPosts();
   }, []);
   
   // 좋아요 토글 함수
   const toggleLike = (postId: string) => {
+    // 실제 API 연동 시 여기서 API 호출
     setLikedPosts(prev => {
       const newState = { ...prev, [postId]: !prev[postId] };
       
@@ -70,6 +153,7 @@ export default function CommunityPage() {
   
   // 북마크 토글 함수
   const toggleBookmark = (postId: string) => {
+    // 실제 API 연동 시 여기서 API 호출
     setBookmarkedPosts(prev => ({
       ...prev,
       [postId]: !prev[postId]
@@ -77,31 +161,52 @@ export default function CommunityPage() {
   };
   
   // 새 포스트 작성 함수
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!postContent.trim()) return;
     
-    const newPost = {
-      id: `POST${Date.now()}`,
-      author: {
-        name: "You",
-        avatar: "/placeholder.svg?height=40&width=40",
-        badge: "Traveler",
-        location: "KoreaTravelHub User",
-      },
-      timestamp: "Just now",
-      type: selectedTags.includes("Question") ? "question" : 
-            selectedTags.includes("Tip") ? "tip" : "experience",
-      tags: selectedTags.length > 0 ? selectedTags : ["General"],
-      title: postContent.split('\n')[0] || "New Post",
-      content: postContent,
-      likes: 0,
-      replies: 0,
-      hasLiked: false
-    };
-    
-    setPosts([newPost, ...posts]);
-    setPostContent("");
-    setSelectedTags([]);
+    try {
+      // 첫 줄을 제목으로 사용
+      const lines = postContent.split('\n');
+      const title = lines[0];
+      const content = lines.length > 1 ? lines.slice(1).join('\n') : '';
+      
+      // 카테고리 ID 결정 (1: 질문, 2: 팁, 3: 경험)
+      let categoryId = 3; // 기본값: 경험
+      if (selectedTags.includes("Question")) categoryId = 1;
+      else if (selectedTags.includes("Tip")) categoryId = 2;
+      
+      const postData: PostCreateInput = {
+        title: title,
+        content: content || title, // 내용이 없으면 제목을 내용으로 사용
+        category_id: categoryId,
+        is_anonymous: false
+      };
+      
+      setLoading(true);
+      
+      // API 호출
+      const createdPost = await PostService.createPost(postData);
+      
+      // 태그 필터링
+      const filteredTags = selectedTags.filter(tag => 
+        tag !== "Question" && tag !== "Tip" && tag !== "Experience"
+      );
+      
+      // UI 업데이트를 위해 포스트 변환 (태그 전달)
+      const uiPost = mapPostToUI(createdPost, "Anonymous", filteredTags);
+      
+      // 상태 업데이트
+      setPosts([uiPost, ...posts]);
+      setPostContent("");
+      setSelectedTags([]);
+      
+      toast.success("게시물이 성공적으로 작성되었습니다!");
+    } catch (err) {
+      console.error('Failed to create post:', err);
+      toast.error("게시물 작성 중 오류가 발생했습니다. 로그인이 필요할 수 있습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
   
   // 태그 토글 함수
@@ -127,8 +232,8 @@ export default function CommunityPage() {
   // 포스트 정렬
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     if (sortBy === "recent") {
-      // 실제로는 타임스탬프 비교가 필요하지만, mock data에서는 간단하게 처리
-      return posts.indexOf(a) - posts.indexOf(b);
+      // 날짜 기반 정렬
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     } else if (sortBy === "popular") {
       return b.likes - a.likes;
     } else if (sortBy === "discussed") {
@@ -136,6 +241,18 @@ export default function CommunityPage() {
     }
     return 0;
   });
+
+  // 렌더링 핸들링
+  if (loading && posts.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="text-gray-600">게시물을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -323,6 +440,12 @@ export default function CommunityPage() {
 
             {/* 포스트 피드 */}
             <div className="space-y-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-4">
+                  {error}
+                </div>
+              )}
+              
               {sortedPosts.length > 0 ? (
                 sortedPosts.map((post) => (
                   <PostCard 
@@ -337,8 +460,8 @@ export default function CommunityPage() {
               ) : (
                 <div className="text-center py-8 bg-white rounded-lg border">
                   <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">No posts found</h3>
-                  <p className="text-gray-500">Try adjusting your search or filters</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">게시물이 없습니다</h3>
+                  <p className="text-gray-500">첫 번째 게시물을 작성해보세요!</p>
                 </div>
               )}
               
@@ -488,7 +611,7 @@ export default function CommunityPage() {
 
 // 포스트 카드 컴포넌트
 interface PostCardProps {
-  post: any;
+  post: PostUI;
   isLiked: boolean;
   isBookmarked: boolean;
   onLikeToggle: () => void;

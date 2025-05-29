@@ -12,11 +12,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     
     # Database - MySQL Configuration
-    MYSQL_SERVER: str = "localhost"
-    MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = "rootpassword"
-    MYSQL_DB: str = "lofair"
-    MYSQL_PORT: str = "3306"
+    MYSQL_SERVER: str
+    MYSQL_USER: str
+    MYSQL_PASSWORD: str
+    MYSQL_DB: str
+    MYSQL_PORT: int
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
     @property

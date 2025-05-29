@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.core.security import verify_password, get_password_hash, create_access_token, verify_token
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import UserCreate, UserResponse, Token, GoogleUserCreate
+from app.schemas.response import (
+    SuccessResponse, CreatedResponse, BadRequestResponse, 
+    UnauthorizedResponse, ServerErrorResponse
+)
 from datetime import timedelta
 from app.core.config import settings
 from pydantic import BaseModel
@@ -36,22 +40,41 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     
     return user
 
-@router.post("/check-email")
+@router.post("/check-email", response_model=SuccessResponse)
 def check_email(email_data: EmailCheck, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == email_data.email).first()
-    return {"exists": db_user is not None}
+    return SuccessResponse(
+        message="Email availability checked",
+        data={"exists": db_user is not None}
+    )
 
-@router.post("/check-username")
+@router.post("/check-username", response_model=SuccessResponse)
 def check_username(username_data: UsernameCheck, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == username_data.username).first()
-    return {"exists": db_user is not None}
+    return SuccessResponse(
+        message="Username availability checked",
+        data={"exists": db_user is not None}
+    )
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me", response_model=SuccessResponse)
 def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Get current user information from JWT token"""
-    return current_user
+    user_data = {
+        "id": current_user.id,
+        "email": current_user.email,
+        "username": current_user.username,
+        "nationality": current_user.nationality,
+        "is_active": current_user.is_active,
+        "is_google_user": current_user.is_google_user,
+        "created_at": current_user.created_at.isoformat() if current_user.created_at else None
+    }
+    
+    return SuccessResponse(
+        message="User information retrieved successfully",
+        data=user_data
+    )
 
-@router.post("/signup", response_model=UserResponse)
+@router.post("/signup", response_model=CreatedResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     # Create new user
     hashed_password = get_password_hash(user.password)
@@ -66,41 +89,58 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
-        return db_user
+        
+        # SQLAlchemy 모델을 딕셔너리로 변환하여 전달
+        user_data = {
+            "id": db_user.id,
+            "email": db_user.email,
+            "username": db_user.username,
+            "nationality": db_user.nationality,
+            "is_active": db_user.is_active,
+            "is_google_user": db_user.is_google_user,
+            "created_at": db_user.created_at.isoformat() if db_user.created_at else None
+        }
+        
+        return CreatedResponse(
+            message="User created successfully", 
+            data=user_data  # 딕셔너리로 변환된 데이터 사용
+        )
     except Exception as e:
         db.rollback()
         # If we get a unique constraint violation, it means the email or username was taken
         # despite our frontend checks (race condition)
         if "Duplicate entry" in str(e):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email or username already taken"
+            return BadRequestResponse(
+                message="Email or username already taken",
+                error_code="duplicate_user"
             )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create user"
+        return ServerErrorResponse(
+            message="Failed to create user",
+            error_code="user_creation_failed"
         )
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=SuccessResponse)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+        return UnauthorizedResponse(
+            message="Incorrect email or password",
+            error_code="invalid_credentials"
         )
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"} 
+    return SuccessResponse(
+        message="Login successful",
+        data={"access_token": access_token, "token_type": "bearer"}
+    )
 
-@router.post("/google-signup", response_model=Token)
+@router.post("/google-signup", response_model=SuccessResponse)
 def create_google_user(user: GoogleUserCreate, db: Session = Depends(get_db)):
     # Check if user with this email or google_id already exists
     existing_user = db.query(User).filter(
@@ -108,9 +148,9 @@ def create_google_user(user: GoogleUserCreate, db: Session = Depends(get_db)):
     ).first()
     
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email or Google account already registered"
+        return BadRequestResponse(
+            message="Email or Google account already registered",
+            error_code="duplicate_user"
         )
     
     # Create new user with Google ID
@@ -133,15 +173,18 @@ def create_google_user(user: GoogleUserCreate, db: Session = Depends(get_db)):
             data={"sub": db_user.email}, expires_delta=access_token_expires
         )
         
-        return {"access_token": access_token, "token_type": "bearer"}
+        return SuccessResponse(
+            message="Google user created successfully",
+            data={"access_token": access_token, "token_type": "bearer"}
+        )
     except Exception as e:
         db.rollback()
         if "Duplicate entry" in str(e):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email or username already taken"
+            return BadRequestResponse(
+                message="Email or username already taken",
+                error_code="duplicate_user"
             )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create user"
+        return ServerErrorResponse(
+            message="Failed to create user",
+            error_code="user_creation_failed"
         ) 

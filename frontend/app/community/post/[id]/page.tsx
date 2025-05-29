@@ -27,6 +27,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { SponsoredContent } from "@/components/sponsored-content"
 import { mockCommunityPosts } from "@/lib/mock-data"
 import Link from "next/link"
+import { PostService, Comment as BackendComment } from "@/lib/services/post-service"
+import { toast } from "sonner"
 
 // 타입 정의
 interface CommentAuthor {
@@ -112,6 +114,8 @@ export default function PostDetailPage() {
   const [replyToId, setReplyToId] = useState<string | null>(null)
   const [replyToName, setReplyToName] = useState<string | null>(null)
   const [likedComments, setLikedComments] = useState<Record<string, boolean>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
   // 임시 상태 변수 (검색 필터링용)
   const [searchQuery, setSearchQuery] = useState("")
@@ -131,56 +135,128 @@ export default function PostDetailPage() {
   
   // 포스트 데이터 로드
   useEffect(() => {
-    // 실제 앱에서는 API 호출로 포스트 데이터를 가져옴
-    const foundPost = mockCommunityPosts.find(p => p.id === postId)
-    if (foundPost) {
-      setPost(foundPost as Post)
-      setIsLiked(foundPost.hasLiked || false)
-      
-      // Mock 댓글 생성
-      const mockComments: Comment[] = [
-        {
-          id: "c1",
+    async function fetchPostData() {
+      try {
+        setLoading(true)
+        
+        // 게시물 로드
+        const fetchedPost = await PostService.getPost(Number(postId))
+        
+        // UI용 포스트 데이터 변환
+        const uiPost: Post = {
+          id: fetchedPost.id.toString(),
           author: {
-            name: "Emily Chen",
+            name: fetchedPost.is_anonymous ? "Anonymous" : "Username", // 실제로는 사용자 정보 API에서 가져와야 함
             avatar: "/placeholder.svg?height=40&width=40",
-            badge: "Regular Visitor",
+            badge: "User",
+            location: "KoreaTravelHub User",
           },
-          timestamp: "1 hour ago",
-          content: "I would recommend staying in Hongdae if you're interested in nightlife and a younger crowd. It's very vibrant with lots of street performances and good food options.",
-          likes: 8,
+          timestamp: new Date(fetchedPost.created_at).toLocaleDateString(),
+          type: fetchedPost.category_id === 1 ? "question" : 
+                fetchedPost.category_id === 2 ? "tip" : "experience",
+          tags: [],
+          title: fetchedPost.title,
+          content: fetchedPost.content,
+          likes: 0,
+          replies: 0,
+          hasLiked: false
+        }
+        
+        setPost(uiPost)
+        
+        // 댓글 로드
+        const fetchedComments = await PostService.getComments(Number(postId))
+        
+        // UI용 댓글 데이터 변환
+        const uiComments: Comment[] = fetchedComments.map((comment: BackendComment) => ({
+          id: comment.id,
+          author: {
+            name: "User", // 실제로는 사용자 정보 API에서 가져와야 함
+            avatar: "/placeholder.svg?height=40&width=40",
+            badge: "User",
+          },
+          timestamp: new Date(comment.created_at).toLocaleDateString(),
+          content: comment.content,
+          likes: 0,
           isLiked: false,
           replies: []
-        },
-        {
-          id: "c2",
-          author: {
-            name: "Soo-jin Park",
-            avatar: "/placeholder.svg?height=40&width=40",
-            badge: "Local Expert",
-          },
-          timestamp: "45 minutes ago",
-          content: "For first-time visitors, I think Myeongdong is a great choice. It's central, has lots of shopping, and is well-connected by public transportation. If you prefer something quieter but still convenient, try Insadong.",
-          likes: 15,
-          isLiked: true,
-          replies: []
-        },
-      ]
-      
-      setComments(mockComments)
-      
-      // 좋아요 상태 초기화
-      const initialLikedComments: Record<string, boolean> = {}
-      mockComments.forEach(comment => {
-        initialLikedComments[comment.id] = false
-        if (comment.replies) {
-          comment.replies.forEach(reply => {
-            initialLikedComments[reply.id] = false
-          })
-        }
-      })
-      setLikedComments(initialLikedComments)
+        }))
+        
+        setComments(uiComments)
+        
+        // 좋아요 상태 초기화
+        const initialLikedComments: Record<string, boolean> = {}
+        uiComments.forEach(comment => {
+          initialLikedComments[comment.id] = false
+          if (comment.replies) {
+            comment.replies.forEach(reply => {
+              initialLikedComments[reply.id] = false
+            })
+          }
+        })
+        setLikedComments(initialLikedComments)
+      } catch (err) {
+        console.error('Failed to fetch post:', err)
+        setError('게시물을 불러오는 중 오류가 발생했습니다.')
+        
+        // 임시 조치: 에러 발생시에도 UI가 보이도록 모의 데이터 사용
+        import("@/lib/mock-data").then(({ mockCommunityPosts }) => {
+          const foundPost = mockCommunityPosts.find(p => p.id === postId)
+          if (foundPost) {
+            setPost(foundPost as Post)
+            setIsLiked(foundPost.hasLiked || false)
+            
+            // Mock 댓글 생성
+            const mockComments: Comment[] = [
+              {
+                id: "c1",
+                author: {
+                  name: "Emily Chen",
+                  avatar: "/placeholder.svg?height=40&width=40",
+                  badge: "Regular Visitor",
+                },
+                timestamp: "1 hour ago",
+                content: "I would recommend staying in Hongdae if you're interested in nightlife and a younger crowd. It's very vibrant with lots of street performances and good food options.",
+                likes: 8,
+                isLiked: false,
+                replies: []
+              },
+              {
+                id: "c2",
+                author: {
+                  name: "Soo-jin Park",
+                  avatar: "/placeholder.svg?height=40&width=40",
+                  badge: "Local Expert",
+                },
+                timestamp: "45 minutes ago",
+                content: "For first-time visitors, I think Myeongdong is a great choice. It's central, has lots of shopping, and is well-connected by public transportation. If you prefer something quieter but still convenient, try Insadong.",
+                likes: 15,
+                isLiked: true,
+                replies: []
+              },
+            ]
+            
+            setComments(mockComments)
+            
+            // 좋아요 상태 초기화
+            const initialLikedComments: Record<string, boolean> = {}
+            mockComments.forEach(comment => {
+              initialLikedComments[comment.id] = false
+              if (comment.replies) {
+                comment.replies.forEach(reply => {
+                  initialLikedComments[reply.id] = false
+                })
+              }
+            })
+            setLikedComments(initialLikedComments)
+          }
+        })
+      } finally {
+        setLoading(false)
+      }
     }
+    
+    fetchPostData()
   }, [postId])
   
   // 좋아요 토글
@@ -235,56 +311,81 @@ export default function PostDetailPage() {
   }
   
   // 댓글 작성
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async () => {
     if (!commentText.trim()) return
     
-    if (replyToId) {
-      // 대댓글 작성
-      const newReply: CommentReply = {
-        id: `reply${Date.now()}`,
-        author: {
-          name: "You",
-          avatar: "/placeholder.svg?height=40&width=40",
-          badge: "Traveler"
-        },
-        content: commentText,
-        timestamp: "방금 전",
-        likes: 0
-      }
-      
-      setComments(prevComments => 
-        prevComments.map(comment => {
-          if (comment.id === replyToId) {
-            return {
-              ...comment,
-              replies: [...(comment.replies || []), newReply]
+    try {
+      if (replyToId) {
+        // 대댓글 작성
+        const commentData = {
+          post_id: Number(postId),
+          content: commentText,
+          parent_id: replyToId
+        }
+        
+        const createdComment = await PostService.createComment(commentData)
+        
+        // UI용 댓글 데이터 변환
+        const uiReply: CommentReply = {
+          id: createdComment.id,
+          author: {
+            name: "You",
+            avatar: "/placeholder.svg?height=40&width=40",
+            badge: "Traveler"
+          },
+          content: createdComment.content,
+          timestamp: "방금 전",
+          likes: 0
+        }
+        
+        setComments(prevComments => 
+          prevComments.map(comment => {
+            if (comment.id === replyToId) {
+              return {
+                ...comment,
+                replies: [...(comment.replies || []), uiReply]
+              }
             }
-          }
-          return comment
-        })
-      )
-    } else {
-      // 일반 댓글 작성
-      const newComment: Comment = {
-        id: `comment${Date.now()}`,
-        author: {
-          name: "You",
-          avatar: "/placeholder.svg?height=40&width=40",
-          badge: "Traveler"
-        },
-        content: commentText,
-        timestamp: "방금 전",
-        likes: 0,
-        isLiked: false,
-        replies: []
+            return comment
+          })
+        )
+      } else {
+        // 일반 댓글 작성
+        const commentData = {
+          post_id: Number(postId),
+          content: commentText
+        }
+        
+        const createdComment = await PostService.createComment(commentData)
+        
+        // UI용 댓글 데이터 변환
+        const uiComment: Comment = {
+          id: createdComment.id,
+          author: {
+            name: "You",
+            avatar: "/placeholder.svg?height=40&width=40",
+            badge: "Traveler"
+          },
+          content: createdComment.content,
+          timestamp: "방금 전",
+          likes: 0,
+          isLiked: false,
+          replies: []
+        }
+        
+        setComments([...comments, uiComment])
       }
       
-      setComments([...comments, newComment])
+      // 입력 필드 초기화
+      setCommentText("")
+      setReplyToId(null)
+      setReplyToName(null)
+      
+      toast.success("댓글이 작성되었습니다!")
+    } catch (err) {
+      console.error('Failed to create comment:', err)
+      toast.error("댓글 작성 중 오류가 발생했습니다. 로그인이 필요할 수 있습니다.")
     }
-    
-    setCommentText("")
-    setReplyToId(null)
-    setReplyToName(null)
   }
   
   // 대댓글 모드 설정
@@ -306,6 +407,36 @@ export default function PostDetailPage() {
     setCommentText("")
   }
   
+  // 로딩 상태 처리
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="text-gray-600">게시물을 불러오는 중...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  // 에러 상태 처리
+  if (error && !post) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 text-gray-400">
+            <MessageCircle className="h-12 w-12 mx-auto" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2">게시물을 찾을 수 없습니다</h2>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <Link href="/community">
+            <Button>커뮤니티로 돌아가기</Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   if (!post) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -313,10 +444,10 @@ export default function PostDetailPage() {
           <div className="mb-4 text-gray-400">
             <MessageCircle className="h-12 w-12 mx-auto" />
           </div>
-          <h2 className="text-xl font-semibold mb-2">Post not found</h2>
-          <p className="text-gray-500 mb-4">The post you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-xl font-semibold mb-2">게시물을 찾을 수 없습니다</h2>
+          <p className="text-gray-500 mb-4">요청하신 게시물이 존재하지 않거나 삭제되었습니다.</p>
           <Link href="/community">
-            <Button>Back to Community</Button>
+            <Button>커뮤니티로 돌아가기</Button>
           </Link>
         </div>
       </div>
