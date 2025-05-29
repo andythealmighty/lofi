@@ -12,9 +12,11 @@ import Link from "next/link"
 import { useState, FormEvent, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { signIn, useSession } from "next-auth/react"
 
 function SignUpPageInner() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -24,12 +26,38 @@ function SignUpPageInner() {
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingUsername, setIsCheckingUsername] = useState(false)
-  const [errors, setErrors] = useState<{
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1)
+  const [formErrors, setFormErrors] = useState<{
     email?: string;
     password?: string;
     username?: string;
   }>({})
   
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard")
+    }
+  }, [status, router])
+
+  // Show loading while checking authentication
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't show signup form if authenticated (redirecting)
+  if (status === "authenticated") {
+    return null
+  }
+
   const validateEmail = (email: string) => {
     return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
   }
@@ -46,9 +74,9 @@ function SignUpPageInner() {
     const value = e.target.value
     setEmail(value)
     if (value && !validateEmail(value)) {
-      setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }))
+      setFormErrors(prev => ({ ...prev, email: "Please enter a valid email address" }))
     } else {
-      setErrors(prev => ({ ...prev, email: undefined }))
+      setFormErrors(prev => ({ ...prev, email: undefined }))
     }
   }
 
@@ -56,12 +84,12 @@ function SignUpPageInner() {
     const value = e.target.value
     setPassword(value)
     if (value && !validatePassword(value)) {
-      setErrors(prev => ({ 
+      setFormErrors(prev => ({ 
         ...prev, 
         password: "Password must be at least 8 characters long with letters and numbers" 
       }))
     } else {
-      setErrors(prev => ({ ...prev, password: undefined }))
+      setFormErrors(prev => ({ ...prev, password: undefined }))
     }
   }
 
@@ -79,15 +107,15 @@ function SignUpPageInner() {
       const data = await response.json()
       
       if (data.exists) {
-        setErrors(prev => ({ 
+        setFormErrors(prev => ({ 
           ...prev, 
           username: "This username is already taken" 
         }))
       } else {
-        setErrors(prev => ({ ...prev, username: undefined }))
+        setFormErrors(prev => ({ ...prev, username: undefined }))
       }
     } catch (error) {
-      setErrors(prev => ({ 
+      setFormErrors(prev => ({ 
         ...prev, 
         username: "Unable to verify username. Please try again." 
       }))
@@ -110,13 +138,13 @@ function SignUpPageInner() {
     const value = e.target.value
     setUsername(value)
     if (value && !validateUsername(value)) {
-      setErrors(prev => ({ 
+      setFormErrors(prev => ({ 
         ...prev, 
         username: "Username must be 3-15 characters long and can only contain letters, numbers, underscores, and hyphens" 
       }))
     } else {
       if (!value || validateUsername(value)) {
-        setErrors(prev => ({ ...prev, username: undefined }))
+        setFormErrors(prev => ({ ...prev, username: undefined }))
       }
     }
   }
@@ -125,7 +153,7 @@ function SignUpPageInner() {
     e.preventDefault()
     
     if (!email || !password) {
-      setErrors({
+      setFormErrors({
         email: !email ? "Email is required" : undefined,
         password: !password ? "Password is required" : undefined
       })
@@ -133,12 +161,12 @@ function SignUpPageInner() {
     }
 
     if (!validateEmail(email)) {
-      setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }))
+      setFormErrors(prev => ({ ...prev, email: "Please enter a valid email address" }))
       return
     }
 
     if (!validatePassword(password)) {
-      setErrors(prev => ({ 
+      setFormErrors(prev => ({ 
         ...prev, 
         password: "Password must be at least 8 characters long with letters and numbers" 
       }))
@@ -161,13 +189,13 @@ function SignUpPageInner() {
       const data = await checkResponse.json()
       
       if (data.exists) {
-        setErrors(prev => ({ ...prev, email: "This email is already registered" }))
+        setFormErrors(prev => ({ ...prev, email: "This email is already registered" }))
         return
       }
 
       setStep(2)
     } catch (error) {
-      setErrors(prev => ({ 
+      setFormErrors(prev => ({ 
         ...prev, 
         email: "Unable to verify email. Please try again." 
       }))
@@ -185,7 +213,7 @@ function SignUpPageInner() {
     }
 
     if (!validateUsername(username)) {
-      setErrors(prev => ({ 
+      setFormErrors(prev => ({ 
         ...prev, 
         username: "Username must be 3-15 characters long and can only contain letters, numbers, underscores, and hyphens" 
       }));
@@ -211,8 +239,23 @@ function SignUpPageInner() {
         throw new Error(data.error || "Failed to create account");
       }
 
-      toast.success("Account created successfully!");
+      // Auto sign-in after successful signup
+      const signinResponse = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (signinResponse.ok) {
+        const signinData = await signinResponse.json();
+        localStorage.setItem("access_token", signinData.access_token);
+        
+        toast.success("Account created successfully! Welcome to KoreaTravelHub!");
+        router.push("/dashboard");
+      } else {
+        toast.success("Account created successfully! Please sign in.");
       router.push("/auth/signin");
+      }
     } catch (error) {
       console.error("Signup error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to create account");
@@ -246,7 +289,20 @@ function SignUpPageInner() {
            nationality && 
            !isLoading &&
            !isCheckingUsername &&
-           !errors.username
+           !formErrors.username
+  }
+
+  const handleGoogleSignup = async () => {
+    setIsGoogleLoading(true)
+    try {
+      // Default to dashboard as the callback URL after completing signup process
+      await signIn("google", { callbackUrl: "/dashboard" })
+    } catch (error) {
+      console.error("Google signup error:", error)
+      toast.error("Failed to sign up with Google. Please try again.")
+      setIsGoogleLoading(false)
+    }
+    // Don't set loading to false here - NextAuth will redirect
   }
 
   return (
@@ -287,6 +343,45 @@ function SignUpPageInner() {
             {step === 1 ? (
               <form onSubmit={handleNextStep}>
                 <CardContent className="space-y-4">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={handleGoogleSignup}
+                      disabled={isGoogleLoading}
+                    >
+                      {isGoogleLoading ? (
+                        <div className="flex items-center">
+                          <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Signing up...
+                        </div>
+                      ) : (
+                        <>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5 mr-2">
+                            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+                          </svg>
+                          Sign up with Google
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator className="w-full" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="px-2 bg-white text-sm text-gray-500">or continue with</span>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <div className="relative">
@@ -296,15 +391,15 @@ function SignUpPageInner() {
                         name="email"
                         type="email"
                         placeholder="name@example.com"
-                        className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                        className={`pl-10 ${formErrors.email ? 'border-red-500' : ''}`}
                         value={email}
                         onChange={handleEmailChange}
                         required
                         autoComplete="email"
                       />
                     </div>
-                    {errors.email && (
-                      <p className="text-sm text-red-500">{errors.email}</p>
+                    {formErrors.email && (
+                      <p className="text-sm text-red-500">{formErrors.email}</p>
                     )}
                   </div>
 
@@ -316,7 +411,7 @@ function SignUpPageInner() {
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                        className={`pl-10 pr-10 ${formErrors.password ? 'border-red-500' : ''}`}
                         value={password}
                         onChange={handlePasswordChange}
                         required
@@ -332,8 +427,8 @@ function SignUpPageInner() {
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
-                    {errors.password && (
-                      <p className="text-sm text-red-500">{errors.password}</p>
+                    {formErrors.password && (
+                      <p className="text-sm text-red-500">{formErrors.password}</p>
                     )}
                   </div>
 
@@ -388,7 +483,7 @@ function SignUpPageInner() {
                         name="username"
                         type="text"
                         placeholder="johndoe123"
-                        className={`pl-10 ${errors.username ? 'border-red-500' : ''}`}
+                        className={`pl-10 ${formErrors.username ? 'border-red-500' : ''}`}
                         value={username}
                         onChange={handleUsernameChange}
                         required
@@ -404,8 +499,8 @@ function SignUpPageInner() {
                         </div>
                       )}
                     </div>
-                    {errors.username && (
-                      <p className="text-sm text-red-500">{errors.username}</p>
+                    {formErrors.username && (
+                      <p className="text-sm text-red-500">{formErrors.username}</p>
                     )}
                     <p className="text-xs text-gray-500">
                       Username must be 3-15 characters and can contain letters, numbers, underscores, and hyphens

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ArrowLeft, Calendar, Clock, MapPin, Ticket, Smartphone, CreditCard, Check, ArrowUpRight, Bell, Settings, LogOut, User, Heart, History, Star, AlertCircle, FileText, MoreHorizontal, Download, Building } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -9,16 +9,82 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useSession, signOut } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { mockBookings } from "@/lib/mock-data"
 
 export default function DashboardPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [filter, setFilter] = useState("all")
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+
+  // Client-side authentication check
+  useEffect(() => {
+    const checkAuthentication = () => {
+      if (status === "loading") return
+      
+      const hasNextAuthSession = status === "authenticated"
+      const hasLocalStorageToken = typeof window !== "undefined" && localStorage.getItem("access_token")
+      
+      if (!hasNextAuthSession && !hasLocalStorageToken) {
+        router.push("/auth/signin?callbackUrl=/dashboard")
+        return
+      }
+      
+      setIsCheckingAuth(false)
+    }
+    
+    checkAuthentication()
+  }, [status, router])
+
+  // Handle sign out for both NextAuth and regular auth
+  const handleSignOut = async () => {
+    if (session) {
+      // NextAuth session
+      await signOut({ callbackUrl: "/" })
+    } else {
+      // Regular auth - clear localStorage token
+      localStorage.removeItem("access_token")
+      router.push("/")
+    }
+  }
+
+  // Get user info for display
+  const getUserInfo = () => {
+    if (session?.user) {
+      return {
+        name: session.user.name || "User",
+        email: session.user.email || "",
+        avatar: session.user.image || undefined
+      }
+    }
+    return {
+      name: "User", 
+      email: "",
+      avatar: undefined
+    }
+  }
+
+  const userInfo = getUserInfo()
 
   // 필터링된 예약 목록
   const filteredBookings = filter === "all" 
     ? mockBookings 
     : mockBookings.filter(booking => booking.status === filter)
+
+  // Show loading while checking authentication
+  if (isCheckingAuth || status === "loading") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -37,12 +103,19 @@ export default function DashboardPage() {
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
+              {/* Temporary SignOut Button for Testing */}
+              <Button variant="outline" onClick={handleSignOut} className="text-red-600 border-red-200 hover:bg-red-50">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out (Test)
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                      <AvatarFallback>JD</AvatarFallback>
+                      <AvatarImage src={userInfo.avatar} />
+                      <AvatarFallback>
+                        {userInfo.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -56,7 +129,7 @@ export default function DashboardPage() {
                     <span>Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>

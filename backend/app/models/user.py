@@ -11,11 +11,15 @@ class User(Base):
     id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()), unique=True, nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
     username = Column(String(50), unique=True, index=True)
-    hashed_password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)  # Made nullable for Google users
     nationality = Column(String(100), nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    
+    # Google OAuth fields
+    google_id = Column(String(255), unique=True, nullable=True)
+    is_google_user = Column(Boolean, default=False)
     
     # Profile information
     display_name = Column(String(100), nullable=True) #this may be replaced by username

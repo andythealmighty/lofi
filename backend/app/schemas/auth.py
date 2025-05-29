@@ -1,5 +1,24 @@
 from pydantic import BaseModel, EmailStr
 
+class UserBase(BaseModel):
+    email: EmailStr
+    username: str
+    nationality: str
+
+class UserCreate(UserBase):
+    password: str
+
+class GoogleUserCreate(UserBase):
+    google_id: str
+
+class UserResponse(UserBase):
+    id: str
+    is_active: bool
+    is_google_user: bool
+
+    class Config:
+        from_attributes = True
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -7,22 +26,6 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: str | None = None
 
-class UserCreate(BaseModel):
-    email: EmailStr
-    username: str
-    password: str
-    nationality: str
-
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
-
-class UserResponse(BaseModel):
-    id: str
-    email: EmailStr
-    username: str
-    nationality: str
-    is_active: bool
-
-    class Config:
-        from_attributes = True 
+    password: str 

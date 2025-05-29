@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, Shield, Users, Globe, CreditCard, Search, MapPin, Calendar, ArrowDownToLine, Star } from "lucide-react"
+import { ArrowRight, Shield, Users, Globe, CreditCard, Search, MapPin, Calendar, ArrowDownToLine, Star, Bell, LogOut, User as UserIcon, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,17 +10,65 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { RealTimeChat, ChatButton } from "@/components/real-time-chat"
 import { WeatherWidget } from "@/components/weather-widget"
 import { CurrencyConverter } from "@/components/currency-converter"
 import { EmergencyContacts } from "@/components/emergency-contacts"
 import { SponsoredContent } from "@/components/sponsored-content"
+import { useSession, signOut } from "next-auth/react"
 import Link from "next/link"
 
 export default function HomePage() {
+  const { data: session, status } = useSession()
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [searchDestination, setSearchDestination] = useState("")
   const [searchDates, setSearchDates] = useState("")
+
+  // Handle sign out for both NextAuth and regular auth
+  const handleSignOut = async () => {
+    if (session) {
+      // NextAuth session
+      await signOut({ callbackUrl: "/" })
+    } else {
+      // Regular auth - clear localStorage token
+      localStorage.removeItem("access_token")
+      window.location.href = "/"
+    }
+  }
+
+  // Check if user is authenticated (either NextAuth session or localStorage token)
+  const isAuthenticated = () => {
+    if (status === "loading") return false
+    if (status === "authenticated") return true
+    
+    // Check localStorage token only on client side
+    if (typeof window !== "undefined") {
+      return !!localStorage.getItem("access_token")
+    }
+    
+    return false
+  }
+
+  const userAuthenticated = isAuthenticated()
+
+  // Get user info for display
+  const getUserInfo = () => {
+    if (session?.user) {
+      return {
+        name: session.user.name || "User",
+        email: session.user.email || "",
+        avatar: session.user.image || undefined
+      }
+    }
+    return {
+      name: "User",
+      email: "",
+      avatar: undefined
+    }
+  }
+
+  const userInfo = getUserInfo()
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -44,12 +92,60 @@ export default function HomePage() {
               <Link href="/guide" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Travel Guide
               </Link>
-              <Link href="/auth/signin">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button>Get Started</Button>
-              </Link>
+              
+              {/* Conditional Navigation based on authentication */}
+              {userAuthenticated ? (
+                <div className="flex items-center space-x-4">
+                  <Button variant="ghost" size="icon">
+                    <Bell className="h-5 w-5" />
+                  </Button>
+                  {/* Temporary Sign Out Button for Testing */}
+                  <Button variant="outline" onClick={handleSignOut} className="text-red-600 border-red-200 hover:bg-red-50">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out (Test)
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={userInfo.avatar} />
+                          <AvatarFallback>
+                            {userInfo.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard">
+                          <UserIcon className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Sign out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ) : (
+                <>
+                  <Link href="/auth/signin">
+                    <Button variant="outline">Sign In</Button>
+                  </Link>
+                  <Link href="/auth/signup">
+                    <Button>Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -150,17 +246,19 @@ export default function HomePage() {
                       {/* Service Search */}
                       <TabsContent value="services" className="mt-0 p-4">
                         <div className="flex flex-col md:flex-row gap-3">
-                          <Select className="flex-1">
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a service" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="exchange">Currency Exchange</SelectItem>
-                              <SelectItem value="sim">SIM Cards</SelectItem>
-                              <SelectItem value="transport">Transportation</SelectItem>
-                              <SelectItem value="accommodation">Accommodation</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex-1">
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a service" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="exchange">Currency Exchange</SelectItem>
+                                <SelectItem value="sim">SIM Cards</SelectItem>
+                                <SelectItem value="transport">Transportation</SelectItem>
+                                <SelectItem value="accommodation">Accommodation</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                           <Link href="/services">
                             <Button className="w-full md:w-auto">
                               <Search className="h-4 w-4 mr-2" /> Browse Services
@@ -367,7 +465,7 @@ export default function HomePage() {
       
       {/* Chat Components */}
       {isChatOpen ? (
-        <RealTimeChat onClose={() => setIsChatOpen(false)} />
+        <RealTimeChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       ) : (
         <ChatButton onClick={() => setIsChatOpen(true)} />
       )}
